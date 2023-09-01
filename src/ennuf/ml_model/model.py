@@ -19,5 +19,5 @@ class Model:
     def __str__(self):
         output = f'An ML model with dtype {self.dtype} the following layers:\n'
         for layer in self.layers:
-            output += str(layer) + '\n'
+            output += str(layer) + ';\n'
         return output
