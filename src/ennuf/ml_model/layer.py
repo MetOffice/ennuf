@@ -1,12 +1,34 @@
 #  (C) Crown Copyright, Met Office, 2023.
+from __future__ import annotations
 from abc import ABC, abstractmethod
 
 
 class Layer(ABC):
-    def __init__(self, name: str, input_name: str):
+    def __init__(self, name: str, input_name: str | None, input_layer: Layer):
+        self.input_layer = input_layer
         self.input_name = input_name
         self.name = name
+        self.output_name = f'y_{self.name}'
 
     @abstractmethod
     def __str__(self):
         pass
+
+    @abstractmethod
+    def get_fortran_type_declaration(self, dtype: str) -> str:
+        pass
+
+    @abstractmethod
+    def get_fortran_data_initialisation(self) -> str:
+        pass
+
+    @abstractmethod
+    def get_fortran_layer_subroutine_call_stmt(self) -> str:
+        pass
+
+    @staticmethod
+    def fortran_id() -> str | None:
+        return None
+
+    def get_additional_fortran_imports(self) -> str:
+        return ''

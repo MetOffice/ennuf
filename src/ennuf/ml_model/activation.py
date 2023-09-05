@@ -6,3 +6,7 @@ class Activation(ABC):
     @abstractmethod
     def __str__(self):
         pass
+
+    @abstractmethod
+    def fortran_id(self) -> str:
+        pass
