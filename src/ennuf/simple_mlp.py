@@ -1,7 +1,6 @@
 #  (C) Crown Copyright, Met Office, 2023.
-from keras.layers import LeakyReLU
-# from tensorflow.python.keras import Model, Input, layers, models
 import tensorflow as tf
+from keras.layers import LeakyReLU
 
 
 class SimpleMLP:
@@ -14,9 +13,10 @@ class SimpleMLP:
         activation = 'relu'
         reg = None
         scalars = tf.keras.Input(shape=6, name='scalars')
-        y = tf.keras.layers.Dense(nnodes, activation=activation, kernel_regularizer=reg, name='dense1', use_bias=False)(scalars)
+        y = tf.keras.layers.Dense(nnodes, activation=activation, kernel_regularizer=reg, name='dense1')(scalars)
         y = tf.keras.layers.Dense(nnodes, activation='sigmoid', kernel_regularizer=reg, name='dense2')(y)
-        y = tf.keras.layers.Dense(nnodes, activation=None, kernel_regularizer=reg, name='dense3')(y)
-        y = tf.keras.layers.Dense(nnodes, activation=LeakyReLU(alpha), kernel_regularizer=reg, name='dense4')(y)
-        outputs = tf.keras.layers.Dense(1, activation=LeakyReLU(alpha), name='outputs')(y)
-        return tf.keras.models.Model(inputs=scalars, outputs=outputs)
+        y = tf.keras.layers.Dense(nnodes, activation='relu', kernel_regularizer=reg, name='dense3')(y)
+        y = tf.keras.layers.Dense(nnodes, activation='tanh', kernel_regularizer=reg, name='dense4')(y)
+        outputs_1 = tf.keras.layers.Dense(1, activation='relu', name='outputs_1')(y)
+        outputs_2 = tf.keras.layers.Dense(2, activation='relu', name='outputs_2')(y)
+        return tf.keras.models.Model(inputs=scalars, outputs={'outputs_1': outputs_1, 'outputs_2': outputs_2})

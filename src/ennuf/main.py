@@ -17,6 +17,14 @@ def main():
     model = SimpleMLP.build()
     model = from_keras_functional(model)
     print(model)
+    fortran_file = ''
+    fortran_file += model.fortran_file_head()
+    fortran_file += model.fortran_module_head()
+    fortran_file += model.fortran_subroutine()
+    fortran_file += model.fortran_module_tail()
+    with open('test.f90', 'w') as file:
+        file.write(fortran_file)
+
     return
     with open(KERAS_FUNCTIONAL_EXAMPLES_DIR.iterdir().__next__(), 'r') as source:
         tree = ast.parse(source.read())
