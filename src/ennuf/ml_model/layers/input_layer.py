@@ -1,13 +1,31 @@
 #  (C) Crown Copyright, Met Office, 2023.
 from typing import Tuple
 
+from ennuf.config import FORMATTER
 from ennuf.ml_model.layer import Layer
 
 
 class InputLayer(Layer):
-    def __init__(self, shape: Tuple[int], name: str, input_name=None):
+    def __init__(self, shape: Tuple[int], name: str):
         self.shape = shape
-        super().__init__(name, input_name)
+        super().__init__(name, input_name=None, input_layer=None)
+        self.output_name = self.name
 
     def __str__(self):
         return f'Input layer "{self.name}" with shape {self.shape}'
+
+    def get_fortran_type_declaration(self, dtype: str) -> str:
+        shape_str = ''
+        for dim in self.shape:
+            if shape_str:
+                shape_str = f'{shape_str}, {dim}'
+            else:
+                shape_str = f'{dim}'
+        input_typedecl = FORMATTER.format_line(f'REAL(KIND={dtype}) :: {self.name}({shape_str})')
+        return f'{input_typedecl}\n'
+
+    def get_fortran_data_initialisation(self) -> str:
+        return ''
+
+    def get_fortran_layer_subroutine_call_stmt(self) -> str:
+        return ''
