@@ -8,10 +8,11 @@ import tensorflow as tf
 from ennuf.ml_model.layer import Layer
 from ennuf.ml_model.layers.dense import Dense
 from ennuf.ml_model.layers.input_layer import InputLayer
+from ennuf.ml_model.model import Model
 from ennuf.ml_model.supported_activations import SupportedActivations
 
 
-def from_layer(layer) -> Layer:
+def from_layer(parent_ennuf_model: Model, layer) -> Layer:
     if isinstance(layer, keras.layers.Dense) or isinstance(layer, tf.keras.layers.Dense):
         layer: keras.layers.Dense
         use_bias = False if layer.bias is None else True
@@ -32,6 +33,7 @@ def from_layer(layer) -> Layer:
         return Dense(
             name=layer.name,
             input_name=input_name,
+            input_layer=parent_ennuf_model.layer_dict[input_name],
             units=layer.units,
             weights=layer.get_weights()[0],
             biases=biases,
