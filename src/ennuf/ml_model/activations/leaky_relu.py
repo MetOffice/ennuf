@@ -3,6 +3,9 @@ from ennuf.ml_model.activation import Activation
 
 
 class LeakyRelu(Activation):
+    def fortran_id(self) -> str:
+        return f'leaky_relu({self.alpha})'
+
     def __str__(self):
         return f'LeakyRelu(alpha={self.alpha:.3f})'
 

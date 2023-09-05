@@ -3,6 +3,9 @@ from ennuf.ml_model.activation import Activation
 
 
 class Sigmoid(Activation):
+    def fortran_id(self) -> str:
+        return "'sigmoid   '"
+
     def __str__(self):
         return 'sigmoid'
 

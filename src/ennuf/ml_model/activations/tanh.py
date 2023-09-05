@@ -3,6 +3,9 @@ from ennuf.ml_model.activation import Activation
 
 
 class Tanh(Activation):
+    def fortran_id(self) -> str:
+        return "'tanh      '"
+
     def __str__(self):
         return 'tanh'
 
