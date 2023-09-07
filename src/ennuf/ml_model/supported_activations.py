@@ -15,6 +15,8 @@ class SupportedActivations:
 
     @classmethod
     def from_identifier(cls, id_: str) -> Activation | None:
+        if id_ not in cls.ids():
+            raise NotImplementedError(f'Unsupported activation identifier: {id_}')
         activationtype = cls.ids()[id_]
         if activationtype is None:
             return None
@@ -23,6 +25,8 @@ class SupportedActivations:
     @classmethod
     def from_serialized_keras_dict(cls, seralized_dict: Dict) -> Activation | None:
         id_ = seralized_dict['class_name']
+        if id_ not in cls.ids():
+            raise NotImplementedError(f'Unsupported activation identifier: {id_}')
         activationtype = cls.ids()[id_]
         if activationtype is None:
             return None
