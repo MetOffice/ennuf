@@ -2,6 +2,7 @@
 import numpy as np
 
 from ennuf.formatters.base_formatter import BaseFormatter
+from ennuf.utils.string_utils import split_except_in_single_quotes
 
 
 class UMFormatter(BaseFormatter):
@@ -27,7 +28,7 @@ class UMFormatter(BaseFormatter):
         zhook_in_decl = 'INTEGER(KIND=jpim), PARAMETER :: zhook_in  = 0'
         zhook_out_decl = 'INTEGER(KIND=jpim), PARAMETER :: zhook_out = 1'
         zhook_handle_decl = 'REAL(KIND=jprb)               :: zhook_handle'
-        routine_name_decl = f"CHARACTER(LEN=*), PARAMETER :: RoutineName='{subroutine_name.capitalize()}'"
+        routine_name_decl = f"CHARACTER(LEN=*), PARAMETER :: RoutineName='{subroutine_name.upper()}'"
         return f'{zhook_in_decl}\n' \
                f'{zhook_out_decl}\n' \
                f'{zhook_handle_decl}\n' \
@@ -40,7 +41,7 @@ class UMFormatter(BaseFormatter):
 
     def required_module_declarations(self, module_name: str) -> str:
         module_name_stmt = self.format_line(
-            f"CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName = '{module_name.capitalize()}'"
+            f"CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName = '{module_name.upper()}'"
         )
         return f'{module_name_stmt}\n'
 
@@ -112,7 +113,7 @@ class UMFormatter(BaseFormatter):
         return code_block
 
     def _format_code_line(self, line: str):
-        pieces = line.split()
+        pieces = split_except_in_single_quotes(line)
         formatted_line = ''
         code_block = ''
         for piece in pieces:
