@@ -1,8 +1,8 @@
 #  (C) Crown Copyright, Met Office, 2023.
-from ennuf.ml_model.activation import Activation
+from ennuf.ml_model.base_activation import BaseActivation
 
 
-class Sigmoid(Activation):
+class Sigmoid(BaseActivation):
     def fortran_id(self) -> str:
         return "'sigmoid   '"
 

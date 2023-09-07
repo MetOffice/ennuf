@@ -2,11 +2,11 @@
 from typing import Tuple
 
 import ennuf.ml_model.model as model
-from ennuf.ml_model.layer import Layer
+from ennuf.ml_model.base_layer import BaseLayer
 
 
-class InputLayer(Layer):
-    def __init__(self, shape: Tuple[int], name: str, parent_model):
+class InputLayer(BaseLayer):
+    def __init__(self, shape: Tuple[int], name: str, parent_model: model.Model):
         self.shape = shape
         super().__init__(name, input_name=None, input_layer=None, parent_model=parent_model)
         self.output_name = self.name

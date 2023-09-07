@@ -5,14 +5,14 @@ import keras.activations
 import keras.layers
 import tensorflow as tf
 
-from ennuf.ml_model.layer import Layer
+from ennuf.ml_model.base_layer import BaseLayer
 from ennuf.ml_model.layers.dense import Dense
 from ennuf.ml_model.layers.input_layer import InputLayer
 from ennuf.ml_model.model import Model
 from ennuf.ml_model.supported_activations import SupportedActivations
 
 
-def from_layer(parent_ennuf_model: Model, layer) -> Layer:
+def from_layer(parent_ennuf_model: Model, layer) -> BaseLayer:
     if isinstance(layer, keras.layers.Dense) or isinstance(layer, tf.keras.layers.Dense):
         layer: keras.layers.Dense
         use_bias = False if layer.bias is None else True

@@ -2,23 +2,23 @@
 import numpy as np
 
 import ennuf.ml_model.model as model
-from ennuf.ml_model.activation import Activation
+from ennuf.ml_model.base_activation import BaseActivation
 from ennuf.ml_model.activations.leaky_relu import LeakyRelu
 from ennuf.ml_model.activations.linear import Linear
-from ennuf.ml_model.layer import Layer
+from ennuf.ml_model.base_layer import BaseLayer
 
 
-class Dense(Layer):
+class Dense(BaseLayer):
     def __init__(
             self,
             name: str,
             input_name: str,
-            input_layer: Layer | None,
+            input_layer: BaseLayer | None,
             parent_model: model.Model,
             units: int,
             weights: np.ndarray,
             biases: np.ndarray,
-            activation: Activation = None,
+            activation: BaseActivation = None,
             use_bias: bool = True,
     ):
         self.units = units
@@ -30,8 +30,6 @@ class Dense(Layer):
         self.use_bias = use_bias
         if not use_bias:
             raise NotImplementedError('Not yet implemented dense layers without bias.')
-        if isinstance(self.activation, LeakyRelu) or isinstance(self.activation, Linear):
-            raise NotImplementedError(f'Not yet implemented activation {str(self.activation)}')
         super().__init__(name, input_name, input_layer, parent_model)
         self._weights_name = f'w_{self.name}'
         self._bias_name = f'b_{self.name}'

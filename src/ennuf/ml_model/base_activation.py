@@ -2,7 +2,7 @@
 from abc import ABC, abstractmethod
 
 
-class Activation(ABC):
+class BaseActivation(ABC):
     @abstractmethod
     def __str__(self):
         pass

@@ -5,8 +5,8 @@ from abc import ABC, abstractmethod
 import ennuf.ml_model.model as model
 
 
-class Layer(ABC):
-    def __init__(self, name: str, input_name: str | None, input_layer: Layer | None, parent_model: model.Model):
+class BaseLayer(ABC):
+    def __init__(self, name: str, input_name: str | None, input_layer: BaseLayer | None, parent_model: model.Model):
         self.input_layer = input_layer
         self.input_name = input_name
         self.name = name

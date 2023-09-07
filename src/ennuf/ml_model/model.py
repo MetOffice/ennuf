@@ -5,12 +5,12 @@ from typing import List, Set, Iterable
 import numpy as np
 
 from ennuf.config import CONFIG
-from ennuf.ml_model.layer import Layer
+from ennuf.ml_model.base_layer import BaseLayer
 from ennuf.ml_model.layers.input_layer import InputLayer
 
 
 class Model:
-    layers: List[Layer] = []
+    layers: List[BaseLayer] = []
     """
     The model's layers. Note this is a list rather than a set, so that when displayed to a user the layers
     can appear easily in the same order they specified them; but this is *not* guarunteed to be the ordering of
@@ -51,7 +51,7 @@ class Model:
         return description
 
     @property
-    def inputs(self) -> Iterable[Layer]:
+    def inputs(self) -> Iterable[BaseLayer]:
         return filter(lambda layer: isinstance(layer, InputLayer), self.layers)
 
     @property

@@ -1,7 +1,7 @@
 #  (C) Crown Copyright, Met Office, 2023.
 from typing import Dict, Type
 
-from ennuf.ml_model.activation import Activation
+from ennuf.ml_model.base_activation import BaseActivation
 from ennuf.ml_model.activations.leaky_relu import LeakyRelu
 from ennuf.ml_model.activations.relu import Relu
 from ennuf.ml_model.activations.sigmoid import Sigmoid
@@ -10,11 +10,11 @@ from ennuf.ml_model.activations.tanh import Tanh
 
 class SupportedActivations:
     @staticmethod
-    def ids() -> Dict[str, Type[Activation] | None]:
+    def ids() -> Dict[str, Type[BaseActivation] | None]:
         return {'relu': Relu, 'sigmoid': Sigmoid, 'tanh': Tanh, 'linear': None, 'LeakyReLU': LeakyRelu}
 
     @classmethod
-    def from_identifier(cls, id_: str) -> Activation | None:
+    def from_identifier(cls, id_: str) -> BaseActivation | None:
         if id_ not in cls.ids():
             raise NotImplementedError(f'Unsupported activation identifier: {id_}')
         activationtype = cls.ids()[id_]
@@ -23,7 +23,7 @@ class SupportedActivations:
         return activationtype()
 
     @classmethod
-    def from_serialized_keras_dict(cls, seralized_dict: Dict) -> Activation | None:
+    def from_serialized_keras_dict(cls, seralized_dict: Dict) -> BaseActivation | None:
         id_ = seralized_dict['class_name']
         if id_ not in cls.ids():
             raise NotImplementedError(f'Unsupported activation identifier: {id_}')
