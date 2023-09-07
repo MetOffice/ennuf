@@ -2,13 +2,16 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 
+import ennuf.ml_model.model as model
+
 
 class Layer(ABC):
-    def __init__(self, name: str, input_name: str | None, input_layer: Layer):
+    def __init__(self, name: str, input_name: str | None, input_layer: Layer | None, parent_model: model.Model):
         self.input_layer = input_layer
         self.input_name = input_name
         self.name = name
         self.output_name = f'y_{self.name}'
+        self.parent_model = parent_model
 
     @abstractmethod
     def __str__(self):

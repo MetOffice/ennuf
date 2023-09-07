@@ -34,6 +34,7 @@ def from_layer(parent_ennuf_model: Model, layer) -> Layer:
             name=layer.name,
             input_name=input_name,
             input_layer=parent_ennuf_model.layer_dict[input_name],
+            parent_model=parent_ennuf_model,
             units=layer.units,
             weights=layer.get_weights()[0],
             biases=biases,
@@ -43,5 +44,5 @@ def from_layer(parent_ennuf_model: Model, layer) -> Layer:
     if isinstance(layer, keras.layers.InputLayer) or isinstance(layer, tf.keras.layers.InputLayer):
         layer: keras.layers.InputLayer
         shape = layer.input_shape[0][1:]
-        return InputLayer(name=layer.name, shape=shape)
+        return InputLayer(name=layer.name, shape=shape, parent_model=parent_ennuf_model)
     raise NotImplementedError(f'Could not match a supported layer type to type {type(layer)}')
