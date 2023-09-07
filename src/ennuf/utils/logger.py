@@ -6,7 +6,7 @@ from typing import Callable
 
 
 def create_logger(level: int = logging.INFO) -> logging.Logger:
-    logger = logging.getLogger()
+    logger = logging.getLogger('ennuf')
 
     logger.setLevel(level)
 
@@ -38,6 +38,3 @@ def _get_log_record_factory() -> Callable[[], logging.LogRecord]:
         return record
 
     return factory
-
-
-LOGGER = create_logger()
