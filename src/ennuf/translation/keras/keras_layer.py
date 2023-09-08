@@ -1,8 +1,6 @@
 #  (C) Crown Copyright, Met Office, 2023.
 from typing import Dict
 
-import keras.activations
-import keras.layers
 import tensorflow as tf
 
 from ennuf.ml_model.base_layer import BaseLayer
@@ -13,11 +11,11 @@ from ennuf.ml_model.supported_activations import SupportedActivations
 
 
 def from_layer(parent_ennuf_model: Model, layer) -> BaseLayer:
-    if isinstance(layer, keras.layers.Dense) or isinstance(layer, tf.keras.layers.Dense):
-        layer: keras.layers.Dense
+    if isinstance(layer, tf.keras.layers.Dense) or isinstance(layer, tf.keras.layers.Dense):
+        layer: tf.keras.layers.Dense
         use_bias = False if layer.bias is None else True
         biases = layer.get_weights()[1] if use_bias else None
-        kas_activation = keras.activations.serialize(layer.activation)
+        kas_activation = tf.keras.activations.serialize(layer.activation)
         if isinstance(kas_activation, str):
             activation = SupportedActivations.from_identifier(kas_activation)
         elif isinstance(kas_activation, Dict):
@@ -41,8 +39,8 @@ def from_layer(parent_ennuf_model: Model, layer) -> BaseLayer:
             activation=activation,
             use_bias=use_bias,
         )
-    if isinstance(layer, keras.layers.InputLayer) or isinstance(layer, tf.keras.layers.InputLayer):
-        layer: keras.layers.InputLayer
+    if isinstance(layer, tf.keras.layers.InputLayer) or isinstance(layer, tf.keras.layers.InputLayer):
+        layer: tf.keras.layers.InputLayer
         shape = layer.input_shape[0][1:]
         return InputLayer(name=layer.name, shape=shape, parent_model=parent_ennuf_model)
     raise NotImplementedError(f'Could not match a supported layer type to type {type(layer)}')

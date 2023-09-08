@@ -1,6 +1,5 @@
 #  (C) Crown Copyright, Met Office, 2023.
 import tensorflow as tf
-from keras.layers import LeakyReLU
 
 
 class SimpleMLP:
