@@ -2,7 +2,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 
-import ennuf.ml_model.model as model
+import ennuf._internal.ml_model.model as model
 
 
 class BaseLayer(ABC):

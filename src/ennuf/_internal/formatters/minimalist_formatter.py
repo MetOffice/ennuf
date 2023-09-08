@@ -1,8 +1,8 @@
 #  (C) Crown Copyright, Met Office, 2023.
 import numpy as np
 
-from ennuf.formatters.base_formatter import BaseFormatter
-from ennuf.utils.string_utils import split_except_in_single_quotes
+from ennuf._internal.formatters.base_formatter import BaseFormatter
+from ennuf._internal.utils.string_utils import split_except_in_single_quotes
 
 
 class MinimalistFormatter(BaseFormatter):

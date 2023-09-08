@@ -4,9 +4,9 @@ from typing import List, Set, Iterable
 
 import numpy as np
 
-from ennuf.config import CONFIG
-from ennuf.ml_model.base_layer import BaseLayer
-from ennuf.ml_model.layers.input_layer import InputLayer
+from ennuf._internal.config import CONFIG
+from ennuf._internal.ml_model.base_layer import BaseLayer
+from ennuf._internal.ml_model.layers import input_layer
 
 
 class Model:
@@ -52,7 +52,7 @@ class Model:
 
     @property
     def inputs(self) -> Iterable[BaseLayer]:
-        return filter(lambda layer: isinstance(layer, InputLayer), self.layers)
+        return filter(lambda layer: isinstance(layer, input_layer.InputLayer), self.layers)
 
     @property
     def layer_types_used(self) -> Set:

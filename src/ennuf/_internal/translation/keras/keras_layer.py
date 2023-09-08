@@ -3,14 +3,14 @@ from typing import Dict
 
 import tensorflow as tf
 
-from ennuf.ml_model.base_layer import BaseLayer
-from ennuf.ml_model.layers.dense import Dense
-from ennuf.ml_model.layers.input_layer import InputLayer
-from ennuf.ml_model.model import Model
-from ennuf.ml_model.supported_activations import SupportedActivations
+from ennuf._internal.ml_model.base_layer import BaseLayer
+from ennuf._internal.ml_model.layers.dense import Dense
+from ennuf._internal.ml_model.layers.input_layer import InputLayer
+import ennuf._internal.ml_model.model as model
+from ennuf._internal.ml_model.supported_activations import SupportedActivations
 
 
-def from_layer(parent_ennuf_model: Model, layer) -> BaseLayer:
+def from_layer(parent_ennuf_model: model.Model, layer) -> BaseLayer:
     if isinstance(layer, tf.keras.layers.Dense) or isinstance(layer, tf.keras.layers.Dense):
         layer: tf.keras.layers.Dense
         use_bias = False if layer.bias is None else True

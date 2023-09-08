@@ -1,12 +1,11 @@
 #  (C) Crown Copyright, Met Office, 2023.
 from typing import Tuple
 
-import ennuf.ml_model.model as model
-from ennuf.ml_model.base_layer import BaseLayer
+from ennuf._internal.ml_model.base_layer import BaseLayer
 
 
 class InputLayer(BaseLayer):
-    def __init__(self, shape: Tuple[int], name: str, parent_model: model.Model):
+    def __init__(self, shape: Tuple[int], name: str, parent_model):
         self.shape = shape
         super().__init__(name, input_name=None, input_layer=None, parent_model=parent_model)
         self.output_name = self.name

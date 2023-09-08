@@ -1,11 +1,11 @@
 #  (C) Crown Copyright, Met Office, 2023.
 from typing import Dict, Type
 
-from ennuf.ml_model.base_activation import BaseActivation
-from ennuf.ml_model.activations.leaky_relu import LeakyRelu
-from ennuf.ml_model.activations.relu import Relu
-from ennuf.ml_model.activations.sigmoid import Sigmoid
-from ennuf.ml_model.activations.tanh import Tanh
+from ennuf._internal.ml_model.base_activation import BaseActivation
+from ennuf._internal.ml_model.activations.leaky_relu import LeakyRelu
+from ennuf._internal.ml_model.activations.relu import Relu
+from ennuf._internal.ml_model.activations.sigmoid import Sigmoid
+from ennuf._internal.ml_model.activations.tanh import Tanh
 
 
 class SupportedActivations:

@@ -1,5 +1,5 @@
 #  (C) Crown Copyright, Met Office, 2023.
-from ennuf.ml_model.base_activation import BaseActivation
+from ennuf._internal.ml_model.base_activation import BaseActivation
 
 
 class LeakyRelu(BaseActivation):

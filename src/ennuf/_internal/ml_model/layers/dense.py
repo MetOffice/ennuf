@@ -1,11 +1,11 @@
 #  (C) Crown Copyright, Met Office, 2023.
 import numpy as np
 
-import ennuf.ml_model.model as model
-from ennuf.ml_model.base_activation import BaseActivation
-from ennuf.ml_model.activations.leaky_relu import LeakyRelu
-from ennuf.ml_model.activations.linear import Linear
-from ennuf.ml_model.base_layer import BaseLayer
+import ennuf._internal.ml_model.model as model
+from ennuf._internal.ml_model.base_activation import BaseActivation
+from ennuf._internal.ml_model.activations.leaky_relu import LeakyRelu
+from ennuf._internal.ml_model.activations.linear import Linear
+from ennuf._internal.ml_model.base_layer import BaseLayer
 
 
 class Dense(BaseLayer):
