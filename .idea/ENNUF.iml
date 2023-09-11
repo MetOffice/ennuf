@@ -5,6 +5,8 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/ref/app-ml-training-day" />
       <excludeFolder url="file://$MODULE_DIR$/ref" />
+      <excludeFolder url="file://$MODULE_DIR$/example" />
+      <excludeFolder url="file://$MODULE_DIR$/src/example_package" />
     </content>
     <orderEntry type="jdk" jdkName="ennuf" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
