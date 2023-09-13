@@ -1,0 +1,27 @@
+package:
+  name: "ennuf"
+  version: "0.1.0"
+
+source:
+  path: "../src"
+
+build:
+  number: 0
+#  script: python3 -m pip install . -vv
+
+requirements:
+  build:
+    - python
+    - setuptools
+  run:
+    - python>=3.10.0
+    - tensorflow>=2.12.0
+    - numpy>=1.23.5
+test:
+  requires:
+    - pytest
+  commands:
+    - python -m pytest
+
+about:
+  summary: "Easy Neural Networks in Fortran, a package for translating ML models"
