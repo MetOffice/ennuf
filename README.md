@@ -34,3 +34,4 @@ However, automating this process as much as possible is desirable.
 ## TODO:
 
 - Add INTENT statements
+- properly handle precision
