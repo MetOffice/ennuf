@@ -30,3 +30,7 @@ At first this was a more manually controlled process, with neural network struct
 the weights then being pasted inbetween and the files being stitched together.
 
 However, automating this process as much as possible is desirable.
+
+## TODO:
+
+- Add INTENT statements
