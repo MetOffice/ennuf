@@ -1,0 +1,96 @@
+! Created by  on 22/09/2023.
+
+MODULE io_mod
+IMPLICIT NONE
+    CONTAINS
+    SUBROUTINE write_1d_array_to_file(filename, array)
+        IMPLICIT NONE
+        CHARACTER(*), INTENT(IN) :: filename
+        REAL, INTENT(IN) :: array(:)
+        INTEGER :: i, unit
+        ! open file
+        unit = -1
+        OPEN(unit, file=filename, status='replace', action='write', form='unformatted')
+        WRITE(unit) SIZE(SHAPE(array))
+        WRITE(unit) SHAPE(array)
+        WRITE(unit) array
+        CLOSE(unit)
+    END SUBROUTINE write_1d_array_to_file
+    SUBROUTINE write_2d_array_to_file(filename, array)
+        IMPLICIT NONE
+        CHARACTER(*), INTENT(IN) :: filename
+        REAL, INTENT(IN) :: array(:, :)
+        INTEGER :: i, unit
+        ! open file
+        unit = -1
+        OPEN(unit, file=filename, status='replace', action='write', form='unformatted')
+        WRITE(unit) SIZE(SHAPE(array))
+        WRITE(unit) SHAPE(array)
+        WRITE(unit) array
+        CLOSE(unit)
+    END SUBROUTINE write_2d_array_to_file
+    SUBROUTINE write_3d_array_to_file(filename, array)
+        IMPLICIT NONE
+        CHARACTER(*), INTENT(IN) :: filename
+        REAL, INTENT(IN) :: array(:, :, :)
+        INTEGER :: i, unit
+        ! open file
+        unit = -1
+        OPEN(unit, file=filename, status='replace', action='write', form='unformatted')
+        WRITE(unit) SIZE(SHAPE(array))
+        WRITE(unit) SHAPE(array)
+        WRITE(unit) array
+        CLOSE(unit)
+    END SUBROUTINE write_3d_array_to_file
+    FUNCTION read_1d_array_from_file(filename) RESULT(array)
+        IMPLICIT NONE
+        CHARACTER(*), INTENT(IN) :: filename
+        REAL, ALLOCATABLE :: readarray(:)
+        INTEGER :: ndim, i, unit
+        INTEGER, ALLOCATABLE :: arrshape(:)
+        unit = -1
+        OPEN(unit, file=filename, status='old', action='read', form='unformatted')
+        READ(unit) ndim
+        ALLOCATE(arrshape(ndim))
+        READ(unit) arrshape
+        ALLOCATE(readarray(PRODUCT(arrshape)))
+        READ(unit) readarray
+        array = RESHAPE(readarray, arrshape)
+        CLOSE(unit)
+        DEALLOCATE(arrshape)
+    END FUNCTION read_1d_array_from_file
+    FUNCTION read_2d_array_from_file(filename) RESULT(array)
+        IMPLICIT NONE
+        CHARACTER(*), INTENT(IN) :: filename
+        REAL, ALLOCATABLE :: readarray(:)
+        INTEGER :: ndim, i, unit
+        INTEGER, ALLOCATABLE :: arrshape(:)
+        unit = -1
+        OPEN(unit, file=filename, status='old', action='read', form='unformatted')
+        READ(unit) ndim
+        ALLOCATE(arrshape(ndim))
+        READ(unit) arrshape
+        ALLOCATE(readarray(PRODUCT(arrshape)))
+        READ(unit) readarray
+        array = RESHAPE(readarray, arrshape)
+        CLOSE(unit)
+        DEALLOCATE(arrshape)
+    END FUNCTION read_2d_array_from_file
+    FUNCTION read_3d_array_from_file(filename) RESULT(array)
+        IMPLICIT NONE
+        CHARACTER(*), INTENT(IN) :: filename
+        REAL, ALLOCATABLE :: readarray(:)
+        INTEGER :: ndim, i, unit
+        INTEGER, ALLOCATABLE :: arrshape(:)
+        unit = -1
+        OPEN(unit, file=filename, status='old', action='read', form='unformatted')
+        READ(unit) ndim
+        ALLOCATE(arrshape(ndim))
+        READ(unit) arrshape
+        ALLOCATE(readarray(PRODUCT(arrshape)))
+        READ(unit) readarray
+        array = RESHAPE(readarray, arrshape)
+        CLOSE(unit)
+        DEALLOCATE(arrshape)
+    END FUNCTION read_3d_array_from_file
+END MODULE io_mod
