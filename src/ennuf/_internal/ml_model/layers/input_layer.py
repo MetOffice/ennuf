@@ -6,8 +6,7 @@ from ennuf._internal.ml_model.base_layer import BaseLayer
 
 class InputLayer(BaseLayer):
     def __init__(self, shape: Tuple[int], name: str, parent_model):
-        self.shape = shape
-        super().__init__(name, input_name=None, input_layer=None, parent_model=parent_model)
+        super().__init__(name=name, shape=shape, input_name=None, input_layer=None, parent_model=parent_model)
         self.output_name = self.name
 
     def __str__(self):

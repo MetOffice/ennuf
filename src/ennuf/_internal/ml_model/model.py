@@ -56,6 +56,10 @@ class Model:
         return filter(lambda layer: isinstance(layer, input_layer.InputLayer), self.layers)
 
     @property
+    def outputs(self) -> Iterable[BaseLayer]:
+        return filter(lambda layer: layer.name in self.output_names, self.layers)
+
+    @property
     def layer_types_used(self) -> Set:
         return set(type(layer) for layer in self.layers)
 
@@ -128,6 +132,7 @@ class Model:
         layer_typedecl_stmts = ''
         layer_init_stmts = ''
         for layer in self.layers:
+            # TODO: make this depend on model dtype field
             layer_typedecls = layer.get_fortran_type_declaration(self.formatter.default_dtype)
             layer_typedecl_stmts = f'{layer_typedecl_stmts}{layer_typedecls}\n'
             layer_inits = layer.get_fortran_data_initialisation()

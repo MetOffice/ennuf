@@ -13,7 +13,7 @@ class Dense(BaseLayer):
             self,
             name: str,
             input_name: str,
-            input_layer: BaseLayer | None,
+            input_layer: BaseLayer,
             parent_model: model.Model,
             units: int,
             weights: np.ndarray,
@@ -30,7 +30,7 @@ class Dense(BaseLayer):
         self.use_bias = use_bias
         if not use_bias:
             raise NotImplementedError('Not yet implemented dense layers without bias.')
-        super().__init__(name, input_name, input_layer, parent_model)
+        super().__init__(name, self.weights.shape[1], input_name, input_layer, parent_model)
         self._weights_name = f'w_{self.name}'
         self._bias_name = f'b_{self.name}'
 
