@@ -2,8 +2,6 @@
 
 PROGRAM main
     USE placeholder_mod, ONLY: placeholder
-    USE matrix_txt_reader_mod, ONLY: txt_to_r_array
-!    USE io_mod, ONLY: write_array_to_file, read_array_from_file
     IMPLICIT NONE
     INTEGER, PARAMETER :: precision=4
     REAL(KIND=precision) :: x(6)
@@ -29,8 +27,7 @@ PROGRAM main
     ! Write the outputs to a file, just 1d because again we don't care about their shape.
     ! Read that file in in python
 !    CALL write_array_to_file(filename='testiomod.dat', array=example_array)
-!    x = txt_to_r_array('testrandin.txt')
-        ! Read array
+    ! Read array
     OPEN(unit, FILE="scalars.dat",&
      FORM="UNFORMATTED", STATUS="UNKNOWN", ACTION="READ", ACCESS='STREAM')
     READ(unit) x
