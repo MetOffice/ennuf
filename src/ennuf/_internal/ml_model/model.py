@@ -5,6 +5,7 @@ from typing import List, Set, Iterable
 import numpy as np
 
 from ennuf._internal.config import CONFIG
+from ennuf._internal.fortran import copy_neural_net_mod
 from ennuf._internal.ml_model.base_layer import BaseLayer
 from ennuf._internal.ml_model.layers import input_layer
 
@@ -51,7 +52,7 @@ class Model:
         return description
 
     @property
-    def inputs(self) -> Iterable[BaseLayer]:
+    def inputs(self) -> Iterable[input_layer.InputLayer]:
         return filter(lambda layer: isinstance(layer, input_layer.InputLayer), self.layers)
 
     @property
@@ -64,10 +65,15 @@ class Model:
                f'{self._fortran_subroutine()}' \
                f'{self._fortran_module_tail()}'
 
-    def create_fortran_module(self, file: Path | str, overwrite: bool = False) -> None:
+    def create_fortran_module(self, file: Path | str, overwrite: bool = False, include_neural_net_mod=True) -> None:
         mode = 'w' if overwrite else 'x'
+        if not isinstance(file, Path):
+            file = Path(file)
         with open(file, mode) as module_file:
             module_file.write(self.to_fortran())
+        if include_neural_net_mod:
+            dest_dir = file.parent
+            copy_neural_net_mod(dest_dir)
 
     def _fortran_file_head(self) -> str:
         """Returns text that goes at the top of the fortran file"""
@@ -95,10 +101,11 @@ class Model:
         subroutine_name = self.id_
         # build the SUBROUTINE statement:
         arg_list = []
-        for input_layer in self.inputs:
-            arg_list.append(input_layer.name)
+        for input_layer_ in self.inputs:
+            arg_list.append(input_layer_.name)
         for output_name in self.output_names:
-            arg_list.append(output_name)
+            # since output names have y_ prepended elsewhere to distinguish them from weights.
+            arg_list.append(f'y_{output_name}')
         arg_str = ''
         for arg in arg_list:
             if arg_str:
