@@ -55,7 +55,7 @@ class MinimalistFormatter(BaseFormatter):
             case 2:
                 data_stmts = '\n'
                 for i, row in enumerate(data):
-                    next_stmt = self.format_data_statement(varname=f'{varname}({i}, :)', data=row)
+                    next_stmt = self.format_data_statement(varname=f'{varname}({i+1}, :)', data=row)
                     data_stmts = f'{data_stmts}{next_stmt}\n'
                 return data_stmts
             case _:
