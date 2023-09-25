@@ -6,6 +6,7 @@ from ennuf._internal.utils.logger import create_logger
 class _EnnufConfig:
     default_formatter = UMFormatter()
     logger = create_logger()
+    compiler = 'gfortran'
 
 
 CONFIG = _EnnufConfig()
