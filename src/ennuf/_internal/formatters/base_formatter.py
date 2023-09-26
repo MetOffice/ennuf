@@ -55,7 +55,7 @@ class BaseFormatter(ABC):
         return ""
 
     def format_line(self, line: str) -> str:
-        """Takes some"""
+        """Takes some Fortran and formats it into lines with appropriate styling according to the formatter."""
         iscomment = line.lstrip()[0] == "!"
         if iscomment:
             return self._format_comment_line(line)
