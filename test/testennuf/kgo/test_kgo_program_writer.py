@@ -8,8 +8,8 @@ class TestKGOProgramWriter:
     def __init__(self, model: ennuf.Model):
         self.model = model
         self._program_name = 'test_kgo'
-        self._nnmod = f'{model.id_}_mod'
-        self._nnsubroutine = model.id_
+        self._nnmod = f'{model.name}_mod'
+        self._nnsubroutine = model.name
         self._precision = '4'
         self._unitname = 'unit'
 

@@ -14,7 +14,7 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable):
     from ennuf.formatters import MinimalistFormatter
 
     model.formatter = MinimalistFormatter()
-    model_mod_path = dir_.joinpath(f'{model.id_}_mod.f90')
+    model_mod_path = dir_.joinpath(f'{model.name}_mod.f90')
     model.create_fortran_module(
         model_mod_path,
         overwrite=True,
@@ -29,11 +29,11 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable):
         input_data[name] = random_input_data[None]
         random_input_data.T.tofile(dir_.joinpath(f'in_{name}.dat'))
 
-    main_path = dir_.joinpath(f'{model.id_}_kgo_test_program.f90')
+    main_path = dir_.joinpath(f'{model.name}_kgo_test_program.f90')
     writer = TestKGOProgramWriter(model)
     writer.write(main_path)
     neural_net_mod_path = dir_.joinpath('neural_net_mod.f90')
-    executablepath = dir_.joinpath(f"run_{model.id_}")
+    executablepath = dir_.joinpath(f"run_{model.name}")
     f90_files = [model_mod_path, neural_net_mod_path, main_path]
     object_files = [f90_file.with_suffix('.o') for f90_file in f90_files]
     command_compile_nnmod = [ennuf.CONFIG.compiler, '-c', neural_net_mod_path]
@@ -54,5 +54,10 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable):
         output_data = output_data.reshape(shape, order='F')
         hopefully_good_output[name] = output_data
     kgo = kgo_fn(input_data)
-    for key in kgo:
-        assert np.isclose(kgo[key], hopefully_good_output[key]).all()
+    if isinstance(kgo, dict):
+        for key in kgo:
+            assert np.isclose(kgo[key], hopefully_good_output[key]).all()
+    else:
+        assert len(hopefully_good_output.keys()) == 1
+        for key in hopefully_good_output:
+            assert np.isclose(kgo, hopefully_good_output[key]).all()
