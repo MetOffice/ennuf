@@ -1,4 +1,5 @@
 #  (C) Crown Copyright, Met Office, 2023.
+"""Module for defining how Keras layers should be translated to ennuf layers"""
 from typing import Dict
 
 import tensorflow as tf
@@ -11,11 +12,10 @@ from ennuf._internal.ml_model.supported_activations import SupportedActivations
 
 
 def from_layer(parent_ennuf_model: model.Model, layer) -> BaseLayer:
-    if isinstance(layer, tf.keras.layers.Dense) or isinstance(
-        layer, tf.keras.layers.Dense
-    ):
+    """Takes a keras model and a keras layer and returns an equivalent ennuf layer."""
+    if isinstance(layer, tf.keras.layers.Dense):
         layer: tf.keras.layers.Dense
-        use_bias = False if layer.bias is None else True
+        use_bias = layer.bias is not None
         biases = layer.get_weights()[1] if use_bias else None
         kas_activation = tf.keras.activations.serialize(layer.activation)
         if isinstance(kas_activation, str):
@@ -25,10 +25,14 @@ def from_layer(parent_ennuf_model: model.Model, layer) -> BaseLayer:
         else:
             activation = None
         input_name: str = layer.input.name
-        # keras layer names are like, if the previous layer was dense layer "dense3", that's internally several layers
-        # potentially, perhaps ending with "dense3/BiasAdd:0" or "dense3/leaky_re_lu/LeakyReLu:0" but the internal ones
-        # use / here it works perfectly fine to split them by / until either a user uses names with / or the tf
-        # internals change and remove this (by which point hopefully we're no longer using ENNUF)
+        # keras layer names are like,
+        # if the previous layer was dense layer "dense3", that's internally several layers
+        # potentially, perhaps ending with "dense3/BiasAdd:0"
+        # or "dense3/leaky_re_lu/LeakyReLu:0" but the internal ones
+        # use / here it works perfectly fine to split them by / until
+        # either a user uses names with / or the tf
+        # internals change and remove this
+        # (by which point hopefully we're no longer using ENNUF)
         input_name = input_name.split("/")[0]
         return Dense(
             name=layer.name,
@@ -41,12 +45,8 @@ def from_layer(parent_ennuf_model: model.Model, layer) -> BaseLayer:
             activation=activation,
             use_bias=use_bias,
         )
-    if isinstance(layer, tf.keras.layers.InputLayer) or isinstance(
-        layer, tf.keras.layers.InputLayer
-    ):
+    if isinstance(layer, tf.keras.layers.InputLayer):
         layer: tf.keras.layers.InputLayer
         shape = layer.input_shape[0][1:]
         return InputLayer(name=layer.name, shape=shape, parent_model=parent_ennuf_model)
-    raise NotImplementedError(
-        f"Could not match a supported layer type to type {type(layer)}"
-    )
+    raise NotImplementedError(f"Could not match a supported layer type to type {type(layer)}")

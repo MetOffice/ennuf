@@ -1,4 +1,5 @@
 #  (C) Crown Copyright, Met Office, 2023.
+"""Module for representing machine learning models containing only ennuf-supported properties."""
 from pathlib import Path
 from typing import List, Set, Iterable
 
@@ -11,6 +12,12 @@ from ennuf._internal.ml_model.layers import input_layer
 
 
 class Model:
+    """
+    Class defining an ennuf model, an abstract representation of a machine learning model with far fewer features
+    than those found on those in more powerful python machine learning libraries such as TensorFlow or PyTorch.
+    Only features supported by ennuf are encoded, i.e. those with adequate predefined Fortran representations.
+    """
+
     def __init__(
         self,
         name: str,
@@ -38,9 +45,7 @@ class Model:
         self.dtype = dtype
         self.output_names = output_names
         self._module_name = f"{self.name}_mod"
-        self.formatter = (
-            formatter if formatter is not None else CONFIG.default_formatter
-        )
+        self.formatter = formatter if formatter is not None else CONFIG.default_formatter
         self.layers: List[BaseLayer] = []
         """
         The model's layers. Note this is a list rather than a set, so that when displayed to a user the layers
@@ -54,6 +59,7 @@ class Model:
         return {layer.name: layer for layer in self.layers}
 
     def __str__(self):
+        """Writes the layers of this model and some info about itself."""
         description = f"An ML model with dtype {self.dtype} the following layers:\n"
         for layer in self.layers:
             description += str(layer) + ";\n"
@@ -61,12 +67,12 @@ class Model:
 
     @property
     def inputs(self) -> Iterable[input_layer.InputLayer]:
-        return filter(
-            lambda layer: isinstance(layer, input_layer.InputLayer), self.layers
-        )
+        """Returns a filtered list of the model's layers containing only the input layers."""
+        return filter(lambda layer: isinstance(layer, input_layer.InputLayer), self.layers)
 
     @property
     def outputs(self) -> Iterable[BaseLayer]:
+        """Returns a filtered list of the model's layers containing only the input layers."""
         return filter(lambda layer: layer.name in self.output_names, self.layers)
 
     @property
@@ -81,13 +87,11 @@ class Model:
             f"{self._fortran_module_tail()}"
         )
 
-    def create_fortran_module(
-        self, file: Path | str, overwrite: bool = False, include_neural_net_mod=True
-    ) -> None:
+    def create_fortran_module(self, file: Path | str, overwrite: bool = False, include_neural_net_mod=True) -> None:
         mode = "w" if overwrite else "x"
         if not isinstance(file, Path):
             file = Path(file)
-        with open(file, mode) as module_file:
+        with open(file, mode, encoding="utf-8") as module_file:
             module_file.write(self.to_fortran())
         if include_neural_net_mod:
             dest_dir = file.parent
@@ -96,9 +100,7 @@ class Model:
     def _fortran_file_head(self) -> str:
         """Returns text that goes at the top of the fortran file"""
         required_header = self.formatter.required_file_header()
-        header_comment = self.formatter.format_line(
-            f"! Easy Neural Networks in the Um in Fortran: {self.long_name}"
-        )
+        header_comment = self.formatter.format_line(f"! Easy Neural Networks in the Um in Fortran: {self.long_name}")
         return f"{required_header}" f"\n" f"{header_comment}"
 
     def _fortran_module_head(self) -> str:
@@ -106,17 +108,9 @@ class Model:
         module_stmt = self.formatter.format_line(f"MODULE {self._module_name}")
         implicit_stmt = self.formatter.format_line("IMPLICIT NONE")
         required_imports = self.formatter.required_module_imports()
-        required_declarations = self.formatter.required_module_declarations(
-            self._module_name
-        )
+        required_declarations = self.formatter.required_module_declarations(self._module_name)
         contains_stmt = self.formatter.format_line("CONTAINS")
-        return (
-            f"{module_stmt}"
-            f"{required_imports}"
-            f"{implicit_stmt}"
-            f"{required_declarations}"
-            f"{contains_stmt}"
-        )
+        return f"{module_stmt}" f"{required_imports}" f"{implicit_stmt}" f"{required_declarations}" f"{contains_stmt}"
 
     def _fortran_subroutine(self) -> str:
         """Returns text that begins the fortran subroutine this_model"""
@@ -134,34 +128,24 @@ class Model:
                 arg_str = f"{arg_str}, {arg}"
             else:
                 arg_str = f"{arg}"
-        subroutine_stmt = self.formatter.format_line(
-            f"SUBROUTINE {subroutine_name}({arg_str})"
-        )
+        subroutine_stmt = self.formatter.format_line(f"SUBROUTINE {subroutine_name}({arg_str})")
         # build the imports of neural network stuff:
         layer_types_to_import = ""
         for layer_type in self.layer_types_used:
             if layer_type.fortran_id():
                 if layer_types_to_import:
-                    layer_types_to_import = (
-                        f"{layer_types_to_import} ,{layer_type.fortran_id()}"
-                    )
+                    layer_types_to_import = f"{layer_types_to_import} ,{layer_type.fortran_id()}"
                 else:
                     layer_types_to_import = layer_type.fortran_id()
-        import_stmt = self.formatter.format_line(
-            f"USE neural_net_mod, ONLY: {layer_types_to_import}\n"
-        )
+        import_stmt = self.formatter.format_line(f"USE neural_net_mod, ONLY: {layer_types_to_import}\n")
         required_imports_stmt = self.formatter.required_subroutine_imports()
         implicit_stmt = self.formatter.format_line("IMPLICIT NONE\n")
-        required_decls_stmt = self.formatter.required_subroutine_declarations(
-            subroutine_name
-        )
+        required_decls_stmt = self.formatter.required_subroutine_declarations(subroutine_name)
         layer_typedecl_stmts = ""
         layer_init_stmts = ""
         for layer in self.layers:
             # TODO: make this depend on model dtype field
-            layer_typedecls = layer.get_fortran_type_declaration(
-                self.formatter.default_dtype
-            )
+            layer_typedecls = layer.get_fortran_type_declaration(self.formatter.default_dtype)
             layer_typedecl_stmts = f"{layer_typedecl_stmts}{layer_typedecls}\n"
             layer_inits = layer.get_fortran_data_initialisation()
             layer_init_stmts = f"{layer_init_stmts}{layer_inits}\n"
@@ -169,9 +153,7 @@ class Model:
         main_body = ""
         for layer in self.layers:
             if layer.input_name is not None:
-                main_body = (
-                    f"{main_body}{layer.get_fortran_layer_subroutine_call_stmt()}\n"
-                )
+                main_body = f"{main_body}{layer.get_fortran_layer_subroutine_call_stmt()}\n"
         required_closing_stmts = self.formatter.required_subroutine_closing_actions()
         return_stmt = "RETURN"
         end_subroutine_stmt = f"END SUBROUTINE {subroutine_name}"

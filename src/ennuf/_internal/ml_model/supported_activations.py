@@ -10,8 +10,11 @@ from ennuf._internal.ml_model.activations.tanh import Tanh
 
 
 class SupportedActivations:
+    """Class specifying which activations are supported and checking whether a given activation is."""
+
     @staticmethod
-    def ids() -> Dict[str, Type[BaseActivation] | None]:
+    def ids() -> Dict[str, Type[BaseActivation]]:
+        """Returns a dict of all possible string ids and their associated activation functions"""
         return {
             "relu": Relu,
             "sigmoid": Sigmoid,
@@ -22,6 +25,7 @@ class SupportedActivations:
 
     @classmethod
     def from_identifier(cls, id_: str) -> BaseActivation | None:
+        """Takes a string id and returns an ennuf activation class"""
         if id_ not in cls.ids():
             raise NotImplementedError(f"Unsupported activation identifier: {id_}")
         activationtype = cls.ids()[id_]
@@ -31,6 +35,10 @@ class SupportedActivations:
 
     @classmethod
     def from_serialized_keras_dict(cls, seralized_dict: Dict) -> BaseActivation | None:
+        """
+        Takes a dictionary representation of an activation function of the form that might be returned by Keras,
+        and returns an ennuf activation class.
+        """
         id_ = seralized_dict["class_name"]
         if id_ not in cls.ids():
             raise NotImplementedError(f"Unsupported activation identifier: {id_}")
@@ -40,3 +48,4 @@ class SupportedActivations:
         if activationtype is LeakyRelu:
             alpha = seralized_dict["config"]["alpha"]
             return LeakyRelu(alpha=alpha)
+        return None

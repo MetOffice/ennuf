@@ -3,10 +3,12 @@ from abc import ABC, abstractmethod
 
 
 class BaseActivation(ABC):
+    """Abstract base class for ennuf activations"""
+
     @abstractmethod
     def __str__(self):
         pass
 
     @abstractmethod
     def fortran_id(self) -> str:
-        pass
+        """The string identifier of the activation function used in Fortran"""

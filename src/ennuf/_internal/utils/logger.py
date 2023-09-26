@@ -1,11 +1,12 @@
 #  (C) Crown Copyright, Met Office, 2023.
-
+"""Module for defining logger creation for the project."""
 import logging
 import os
 from typing import Callable
 
 
 def create_logger(level: int = logging.INFO) -> logging.Logger:
+    """Returns a logger with the name 'ennuf' with the specified log level."""
     logger = logging.getLogger("ennuf")
 
     logger.setLevel(level)

@@ -8,6 +8,8 @@ import ennuf._internal.ml_model.model as model
 
 
 class BaseLayer(ABC):
+    """Abstract base class for ennuf layers"""
+
     def __init__(
         self,
         name: str,

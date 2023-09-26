@@ -23,3 +23,22 @@ mkdocs-material = "^9.4.2"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 120
+
+[tool.pylint.format]
+# Maximum number of characters on a single line, higher than default because default is extremely low.
+max-line-length = 120
+
+[tool.pylint.variables]
+ignored-argument-names="arg|args|kwargs|_.*|^ignored_|^unused_"
+
+[tool.pylint.messages_control]
+disable = [
+    # defalt values from pylint
+    "raw-checker-failed", "bad-inline-option", "locally-disabled", "file-ignored", "suppressed-message",
+    "useless-suppression", "deprecated-pragma", "use-symbolic-message-instead",
+    # project specific values
+    "missing-module-docstring"
+]

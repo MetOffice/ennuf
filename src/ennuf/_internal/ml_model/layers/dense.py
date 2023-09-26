@@ -9,6 +9,8 @@ from ennuf._internal.ml_model.base_layer import BaseLayer
 
 
 class Dense(BaseLayer):
+    """Ennuf representation of a dense layer"""
+
     def __init__(
         self,
         name: str,
@@ -30,9 +32,7 @@ class Dense(BaseLayer):
         self.use_bias = use_bias
         if not use_bias:
             raise NotImplementedError("Not yet implemented dense layers without bias.")
-        super().__init__(
-            name, self.weights.shape[1], input_name, input_layer, parent_model
-        )
+        super().__init__(name, self.weights.shape[1], input_name, input_layer, parent_model)
         self._weights_name = f"w_{self.name}"
         self._bias_name = f"b_{self.name}"
 
@@ -77,12 +77,8 @@ class Dense(BaseLayer):
         return f"{weights_typedecl}{bias_typedecl}{output_typedecl}\n"
 
     def get_fortran_data_initialisation(self) -> str:
-        bias_init = self.parent_model.formatter.format_data_statement(
-            varname=self._bias_name, data=self.biases
-        )
-        weights_inits = self.parent_model.formatter.format_data_statement(
-            varname=self._weights_name, data=self.weights
-        )
+        bias_init = self.parent_model.formatter.format_data_statement(varname=self._bias_name, data=self.biases)
+        weights_inits = self.parent_model.formatter.format_data_statement(varname=self._weights_name, data=self.weights)
         return f"{bias_init}\n{weights_inits}"
 
     def get_additional_fortran_imports(self) -> str:

@@ -3,7 +3,10 @@ from ennuf._internal.ml_model.base_activation import BaseActivation
 
 
 class LeakyRelu(BaseActivation):
+    """Ennuf representation of Leaky ReLU activation function"""
+
     def fortran_id(self) -> str:
+        """The string identifier of the activation function used in Fortran"""
         return f"leaky_relu({self.alpha})"
 
     def __str__(self):

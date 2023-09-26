@@ -1,11 +1,14 @@
 #  (C) Crown Copyright, Met Office, 2023.
+"""Module for generic functions concerning the manipulation of strings."""
 import re
 
 
 def split_except_in_single_quotes(string: str):
     """
-    Returns string split as if string.split() was called but ignoring parts of the string surrounded in single quotes,
-    which are kept together. For example, "Here is an example with 'quoted text' in it" would return
+    Returns string split as if string.split() was called but
+    ignoring parts of the string surrounded in single quotes,
+    which are kept together. For example,
+    "Here is an example with 'quoted text' in it" would return
     ['here', 'is', 'an', 'example', 'with', "'quoted text'", 'in', 'it']
     """
     # split into non-quoted and quoted regions
