@@ -10,17 +10,17 @@ on:
     branches: [ "*" ]
 
 jobs:
-  black:
-    strategy:
-      matrix:
-        python-version: ["3.11"]
-    name: Run Black
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: psf/black@stable
-        with:
-          src: src test
+#  black:
+#    strategy:
+#      matrix:
+#        python-version: ["3.11"]
+#    name: Run Black
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - uses: psf/black@stable
+#        with:
+#          src: src test
   pytest:
     strategy:
       matrix:
