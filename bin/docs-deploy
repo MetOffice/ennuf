@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#
+# (C) Crown Copyright, Met Office, 2023.
+#
+mkdocs gh-deploy
