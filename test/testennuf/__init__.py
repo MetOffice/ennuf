@@ -2,6 +2,6 @@
 from pathlib import Path
 
 TESTS_ROOT_DIR = Path(__file__).parent
-TMPDIR = TESTS_ROOT_DIR.joinpath('tmp')
+TMPDIR = TESTS_ROOT_DIR.joinpath("tmp")
 TMPDIR.mkdir(exist_ok=True)
 RANDOM_SEED = 43

@@ -4,7 +4,7 @@ from ennuf._internal.ml_model.base_activation import BaseActivation
 
 class Linear(BaseActivation):
     def __str__(self):
-        return 'linear'
+        return "linear"
 
     def fortran_id(self) -> str:
         return "'linear    '"

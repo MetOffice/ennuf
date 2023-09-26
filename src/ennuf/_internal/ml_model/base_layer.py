@@ -9,9 +9,13 @@ import ennuf._internal.ml_model.model as model
 
 class BaseLayer(ABC):
     def __init__(
-            self, name: str, shape: int | Tuple[int] | None, input_name: str | None, input_layer: BaseLayer | None,
-            parent_model: model.Model
-            ):
+        self,
+        name: str,
+        shape: int | Tuple[int] | None,
+        input_name: str | None,
+        input_layer: BaseLayer | None,
+        parent_model: model.Model,
+    ):
         self.input_layer = input_layer
         self.input_name = input_name
         if isinstance(shape, Tuple):
@@ -19,7 +23,7 @@ class BaseLayer(ABC):
         else:
             self.shape = (shape,)
         self.name = name
-        self.output_name = f'y_{self.name}'
+        self.output_name = f"y_{self.name}"
         self.parent_model = parent_model
 
     @abstractmethod
@@ -43,4 +47,4 @@ class BaseLayer(ABC):
         return None
 
     def get_additional_fortran_imports(self) -> str:
-        return ''
+        return ""

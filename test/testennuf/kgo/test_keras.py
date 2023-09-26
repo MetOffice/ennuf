@@ -61,7 +61,7 @@ def template_test_keras_functional(keras_model):
     from ennuf.keras import from_functional
 
     model = from_functional(keras_model)
-    dir_ = TMPDIR.joinpath('keras', f'{model.name}')
+    dir_ = TMPDIR.joinpath("keras", f"{model.name}")
     if dir_.exists():
         shutil.rmtree(dir_)
     dir_.mkdir(parents=True)

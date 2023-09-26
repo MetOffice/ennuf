@@ -6,7 +6,7 @@ from typing import Callable
 
 
 def create_logger(level: int = logging.INFO) -> logging.Logger:
-    logger = logging.getLogger('ennuf')
+    logger = logging.getLogger("ennuf")
 
     logger.setLevel(level)
 

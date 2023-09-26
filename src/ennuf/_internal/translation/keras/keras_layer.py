@@ -11,7 +11,9 @@ from ennuf._internal.ml_model.supported_activations import SupportedActivations
 
 
 def from_layer(parent_ennuf_model: model.Model, layer) -> BaseLayer:
-    if isinstance(layer, tf.keras.layers.Dense) or isinstance(layer, tf.keras.layers.Dense):
+    if isinstance(layer, tf.keras.layers.Dense) or isinstance(
+        layer, tf.keras.layers.Dense
+    ):
         layer: tf.keras.layers.Dense
         use_bias = False if layer.bias is None else True
         biases = layer.get_weights()[1] if use_bias else None
@@ -27,7 +29,7 @@ def from_layer(parent_ennuf_model: model.Model, layer) -> BaseLayer:
         # potentially, perhaps ending with "dense3/BiasAdd:0" or "dense3/leaky_re_lu/LeakyReLu:0" but the internal ones
         # use / here it works perfectly fine to split them by / until either a user uses names with / or the tf
         # internals change and remove this (by which point hopefully we're no longer using ENNUF)
-        input_name = input_name.split('/')[0]
+        input_name = input_name.split("/")[0]
         return Dense(
             name=layer.name,
             input_name=input_name,
@@ -39,8 +41,12 @@ def from_layer(parent_ennuf_model: model.Model, layer) -> BaseLayer:
             activation=activation,
             use_bias=use_bias,
         )
-    if isinstance(layer, tf.keras.layers.InputLayer) or isinstance(layer, tf.keras.layers.InputLayer):
+    if isinstance(layer, tf.keras.layers.InputLayer) or isinstance(
+        layer, tf.keras.layers.InputLayer
+    ):
         layer: tf.keras.layers.InputLayer
         shape = layer.input_shape[0][1:]
         return InputLayer(name=layer.name, shape=shape, parent_model=parent_ennuf_model)
-    raise NotImplementedError(f'Could not match a supported layer type to type {type(layer)}')
+    raise NotImplementedError(
+        f"Could not match a supported layer type to type {type(layer)}"
+    )

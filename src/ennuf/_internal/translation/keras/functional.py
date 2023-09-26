@@ -6,9 +6,9 @@ from ennuf._internal.translation.keras.keras_layer import from_layer
 
 
 def from_functional(
-        keras_model: tf.keras.Model,
-        name: str = 'placeholder',
-        long_name: str = 'Auto-generated module by ENNUF',
+    keras_model: tf.keras.Model,
+    name: str = "placeholder",
+    long_name: str = "Auto-generated module by ENNUF",
 ) -> ennufmodel.Model:
     """
     Takes a keras functional model and returns an equivalent ENNUF model.
@@ -35,14 +35,17 @@ def from_functional(
         if set(keras_model.output_names) != set(keras_model.output_shape.keys()):
             # TODO: handle this in KGO testing somehow
             raise NotImplementedError(
-                'Currently you must name your model outputs the same name as the layers they are connected to. '
-                'This only matters for automated KGO testing and should not impact functionality '
-                'if no fix was implemented.'
-                )
+                "Currently you must name your model outputs the same name as the layers they are connected to. "
+                "This only matters for automated KGO testing and should not impact functionality "
+                "if no fix was implemented."
+            )
 
     dtype = keras_model.variable_dtype
     model = ennufmodel.Model(
-        name=name, long_name=long_name, output_names=keras_model.output_names, dtype=dtype
+        name=name,
+        long_name=long_name,
+        output_names=keras_model.output_names,
+        dtype=dtype,
     )
     for layer in keras_model.layers:
         model.layers.append(from_layer(parent_ennuf_model=model, layer=layer))

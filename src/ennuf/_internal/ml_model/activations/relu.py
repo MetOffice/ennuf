@@ -7,5 +7,4 @@ class Relu(BaseActivation):
         return "'relu      '"
 
     def __str__(self):
-        return 'relu'
-
+        return "relu"

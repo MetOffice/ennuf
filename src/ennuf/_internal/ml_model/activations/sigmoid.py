@@ -7,5 +7,4 @@ class Sigmoid(BaseActivation):
         return "'sigmoid   '"
 
     def __str__(self):
-        return 'sigmoid'
-
+        return "sigmoid"

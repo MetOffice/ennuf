@@ -7,5 +7,4 @@ class Tanh(BaseActivation):
         return "'tanh      '"
 
     def __str__(self):
-        return 'tanh'
-
+        return "tanh"

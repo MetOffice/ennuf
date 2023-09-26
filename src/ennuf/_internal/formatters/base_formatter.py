@@ -15,32 +15,32 @@ class BaseFormatter(ABC):
 
     @property
     def default_dtype(self) -> str:
-        return ''
+        return ""
 
     def required_file_header(self) -> str:
         """Inserted at the top of the file"""
-        return ''
+        return ""
 
     def required_module_imports(self, *args, **kwargs) -> str:
         """Inserted after MODULE statement."""
-        return ''
+        return ""
 
     def required_module_declarations(self, *args, **kwargs) -> str:
         """Inserted after imports."""
-        return ''
+        return ""
 
     def required_subroutine_imports(self, *args, **kwargs) -> str:
         """Inserted after SUBROUTINE statement."""
-        return ''
+        return ""
 
     def required_subroutine_declarations(self, *args, **kwargs) -> str:
         """Inserted after SUBROUTINE statement."""
-        return ''
+        return ""
 
     def required_subroutine_opening_actions(self, *args, **kwargs) -> str:
         """Inserted after declarations and initialisations but before code."""
-        return ''
+        return ""
 
     def required_subroutine_closing_actions(self, *args, **kwargs) -> str:
         """Inserted after declarations and initialisations but before code."""
-        return ''
+        return ""
