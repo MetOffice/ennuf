@@ -31,10 +31,18 @@ def from_functional(
         network architectures out there - only the ones we have written ways of representing in Fortran. The model
         will have methods on it which can be used to write a Fortran module based on it.
     """
+    if isinstance(keras_model.output_shape, dict):
+        if set(keras_model.output_names) != set(keras_model.output_shape.keys()):
+            # TODO: handle this in KGO testing somehow
+            raise NotImplementedError(
+                'Currently you must name your model outputs the same name as the layers they are connected to. '
+                'This only matters for automated KGO testing and should not impact functionality '
+                'if no fix was implemented.'
+                )
 
     dtype = keras_model.variable_dtype
     model = ennufmodel.Model(
-        id_=name, long_name=long_name, output_names=keras_model.output_names, dtype=dtype
+        name=name, long_name=long_name, output_names=keras_model.output_names, dtype=dtype
     )
     for layer in keras_model.layers:
         model.layers.append(from_layer(parent_ennuf_model=model, layer=layer))
