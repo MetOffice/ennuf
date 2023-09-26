@@ -11,24 +11,12 @@ from ennuf._internal.ml_model.layers import input_layer
 
 
 class Model:
-    layers: List[BaseLayer] = []
-    """
-    The model's layers. Note this is a list rather than a set, so that when displayed to a user the layers
-    can appear easily in the same order they specified them; but this is *not* guarunteed to be the ordering of
-    the layers of a sequential model.
-    """
-
-    @property
-    def layer_dict(self):
-        """A dict mapping the model's layers' names to the layer objects themselves"""
-        return {layer.name: layer for layer in self.layers}
-
-    def __init__(self, id_: str, long_name: str, output_names: List[str], dtype=np.float32, formatter=None):
+    def __init__(self, name: str, long_name: str, output_names: List[str], dtype=np.float32, formatter=None):
         """
 
         Parameters
         ----------
-        id_
+        name
          a valid fortran identifier, e.g. "ennuf_bcf"
         long_name
          a more descriptive name, e.g. "Bulk Cloud Fraction"
@@ -38,12 +26,23 @@ class Model:
         formatter
          The fortran formatter for the model to use. Defaults to CONFIG.default_formatter() if None is provided.
         """
-        self.id_ = id_
+        self.name = name
         self.long_name = long_name
         self.dtype = dtype
         self.output_names = output_names
-        self._module_name = f'{self.id_}_mod'
+        self._module_name = f'{self.name}_mod'
         self.formatter = formatter if formatter is not None else CONFIG.default_formatter
+        self.layers: List[BaseLayer] = []
+        """
+        The model's layers. Note this is a list rather than a set, so that when displayed to a user the layers
+        can appear easily in the same order they specified them; but this is *not* guarunteed to be the ordering of
+        the layers of a sequential model.
+        """
+
+    @property
+    def layer_dict(self):
+        """A dict mapping the model's layers' names to the layer objects themselves"""
+        return {layer.name: layer for layer in self.layers}
 
     def __str__(self):
         description = f'An ML model with dtype {self.dtype} the following layers:\n'
@@ -102,7 +101,7 @@ class Model:
 
     def _fortran_subroutine(self) -> str:
         """Returns text that begins the fortran subroutine this_model"""
-        subroutine_name = self.id_
+        subroutine_name = self.name
         # build the SUBROUTINE statement:
         arg_list = []
         for input_layer_ in self.inputs:
