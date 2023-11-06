@@ -11,7 +11,7 @@ MODULE neural_net_mod
 IMPLICIT NONE
 CONTAINS
 
-    SUBROUTINE dense(x_in, y_out, n_in, n_out, weights, biases, activation)
+    SUBROUTINE dense(x_in, y_out, n_in, n_out, weights, biases, activation, alpha)
 
     IMPLICIT NONE
 
@@ -27,7 +27,7 @@ CONTAINS
     REAL(kind = precision)                                :: running_sum
     REAL(kind = precision)                                :: denominator
     REAL(kind = precision), DIMENSION(n_out)              :: x
-    REAL(kind = precision)                                :: alpha
+    REAL(kind = precision), INTENT(in)                    :: alpha
 
     CHARACTER (LEN=10)                                    :: activation
 
@@ -54,7 +54,6 @@ CONTAINS
        CASE ("linear    ")
            y_out(j) = x(j)
        CASE ("leakyrelu ")
-          alpha=0.1
           y_out(j) = max(alpha*x(j),x(j))
        CASE ("sigmoid   ")
           y_out(j) = 1.0 / ( 1.0 + exp(-x(j)) )
@@ -71,6 +70,27 @@ CONTAINS
     ENDDO
 
     END SUBROUTINE dense
+
+    SUBROUTINE concatenate_1d(x_in_1, x_in_2, y_out)
+        IMPLICIT NONE
+        INTEGER, PARAMETER :: precision = 4
+        REAL(KIND=precision), DIMENSION(:), INTENT(IN) :: x_in_1, x_in_2
+        REAL(KIND=precision), DIMENSION(:), INTENT(OUT) :: y_out
+        INTEGER :: len1, len2, total_len
+        len1 = SIZE(x_in_1)
+        len2 = SIZE(x_in_2)
+        total_len = len1 + len2
+        IF (SIZE(y_out) /= total_len) THEN
+            PRINT*, 'Arr y_out had size:'
+            PRINT*, SIZE(y_out)
+            PRINT*, 'but was expecting:'
+            PRINT*, total_len
+            PRINT*, 'exiting...'
+            CALL EXIT(1)
+        END IF
+        y_out(1:len1) = x_in_1
+        y_out(len1+1:total_len) = x_in_2
+    END SUBROUTINE concatenate_1d
 
     SUBROUTINE conv_1d( &
     ! arrays for input and output
