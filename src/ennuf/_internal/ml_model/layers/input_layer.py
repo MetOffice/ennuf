@@ -11,8 +11,7 @@ class InputLayer(BaseLayer):
         super().__init__(
             name=name,
             shape=shape,
-            input_name=None,
-            input_layer=None,
+            inputs=None,
             parent_model=parent_model,
         )
         self.output_name = self.name

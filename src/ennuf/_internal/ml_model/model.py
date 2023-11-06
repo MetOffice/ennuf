@@ -152,7 +152,9 @@ class Model:
         required_opening_stmts = self.formatter.required_subroutine_opening_actions()
         main_body = ""
         for layer in self.layers:
-            if layer.input_name is not None:
+            # All layers besides input layers have an inputs field; all layers besides input ones
+            # want to call a Fortran subroutine.
+            if layer.inputs is not None:
                 main_body = f"{main_body}{layer.get_fortran_layer_subroutine_call_stmt()}\n"
         required_closing_stmts = self.formatter.required_subroutine_closing_actions()
         return_stmt = "RETURN"
