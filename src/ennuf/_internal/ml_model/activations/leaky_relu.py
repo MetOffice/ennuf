@@ -7,10 +7,10 @@ class LeakyRelu(BaseActivation):
 
     def fortran_id(self) -> str:
         """The string identifier of the activation function used in Fortran"""
-        return f"leaky_relu({self.alpha})"
+        return f"'leakyrelu '"
 
     def __str__(self):
-        return f"LeakyRelu(alpha={self.alpha:.3f})"
+        return f"LeakyRelu(alpha={self.alpha:.5f})"
 
-    def __init__(self, alpha: float = 0.1):
+    def __init__(self, alpha: float):
         self.alpha = alpha

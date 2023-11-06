@@ -29,6 +29,8 @@ class SupportedActivations:
         if id_ not in cls.ids():
             raise NotImplementedError(f"Unsupported activation identifier: {id_}")
         activationtype = cls.ids()[id_]
+        if activationtype is LeakyRelu:
+            raise NotImplementedError('pretty sure you are never supposed to reach here')
         if activationtype is None:
             return None
         return activationtype()
