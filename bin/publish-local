@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#
+# (C) Crown Copyright, Met Office, 2023.
+#
+set -xe
+poetry build
+VERSION="$(poetry version --short)"
+WHEELS_DIR="${HOME}/public_html/dist/python/wheels"
+mkdir --parents --verbose "${WHEELS_DIR}"
+PUBLISHED_WHEEL="${WHEELS_DIR}/ennuf-${VERSION}-py3-none-any.whl"
+cp "dist/ennuf-${VERSION}-py3-none-any.whl" "${PUBLISHED_WHEEL}"
+ln --symbolic --force "${PUBLISHED_WHEEL}" "${WHEELS_DIR}/ennuf-latest.whl"
+
+PUBLISHED_TARBALL="${WHEELS_DIR}/ennuf-${VERSION}.tar.gz"
+cp "dist/ennuf-${VERSION}.tar.gz" "${PUBLISHED_TARBALL}"
+ln --symbolic --force "${PUBLISHED_TARBALL}" "${WHEELS_DIR}/ennuf-latest.tar.gz"
