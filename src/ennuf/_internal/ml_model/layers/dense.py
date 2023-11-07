@@ -83,4 +83,3 @@ class Dense(BaseLayer):
         bias_init = self.parent_model.formatter.format_data_statement(varname=self._bias_name, data=self.biases)
         weights_inits = self.parent_model.formatter.format_data_statement(varname=self._weights_name, data=self.weights)
         return f"{bias_init}\n{weights_inits}"
-

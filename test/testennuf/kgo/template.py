@@ -15,9 +15,7 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable):
 
     model.formatter = MinimalistFormatter()
     model_mod_path = dir_.joinpath(f"{model.name}_mod.f90")
-    model.create_fortran_module(
-        model_mod_path, overwrite=True, include_neural_net_mod=True
-    )
+    model.create_fortran_module(model_mod_path, overwrite=True, include_neural_net_mod=True)
     rng = np.random.default_rng(RANDOM_SEED)
     input_data = {}
     for input_layer in model.inputs:
@@ -53,9 +51,7 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable):
     for output_layer in model.outputs:
         name = output_layer.name
         shape = output_layer.shape
-        output_data = np.fromfile(
-            dir_.joinpath(f"out_{name}.dat"), dtype=np.float32, count=np.product(shape)
-        )
+        output_data = np.fromfile(dir_.joinpath(f"out_{name}.dat"), dtype=np.float32, count=np.product(shape))
         output_data = output_data.reshape(shape, order="F")
         hopefully_good_output[name] = output_data
     kgo = kgo_fn(input_data)
@@ -64,16 +60,16 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable):
             kgo_data: np.ndarray = kgo[key].squeeze()
             out_data: np.ndarray = hopefully_good_output[key].squeeze()
             if kgo_data.shape != out_data.shape:
-                print(f'kgo shape: {kgo_data.shape}, out shape: {out_data.shape}')
+                print(f"kgo shape: {kgo_data.shape}, out shape: {out_data.shape}")
             assert kgo_data.shape == out_data.shape
-            if not np.isclose(kgo_data, out_data, atol=1.e-7).all():
+            if not np.isclose(kgo_data, out_data, atol=1.0e-7).all():
                 for i, kgo_datum in enumerate(kgo_data):
                     out_datum = out_data[i]
                     # print(f'kgo: [{kgo_datum}], out: [{out_data[i]}]')
                     diff = np.abs(kgo_datum - out_datum)
-                    print(f'diff: [{diff}], reldiff: [{np.abs(diff / kgo_datum)}]')
-            assert np.isclose(kgo_data, out_data, atol=1.e-7).all()
+                    print(f"diff: [{diff}], reldiff: [{np.abs(diff / kgo_datum)}]")
+            assert np.isclose(kgo_data, out_data, atol=1.0e-7).all()
     else:
         assert len(hopefully_good_output.keys()) == 1
         for key in hopefully_good_output:
-            assert np.isclose(kgo, hopefully_good_output[key], atol=1.e-7, rtol=1.e-4).all()
+            assert np.isclose(kgo, hopefully_good_output[key], atol=1.0e-7, rtol=1.0e-4).all()

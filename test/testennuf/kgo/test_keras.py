@@ -60,14 +60,16 @@ def test_cov_pred_sep_outputs():
 
 def test_t_anomaly_covariances_01():
     import numpy as np
+
     keras_model = TAnomalyCovariances01.build_function(0.1)
     vn = 1
-    name = f'TAC01v{vn:03d}'
+    name = f"TAC01v{vn:03d}"
     weights_dir = WEIGHTS_DIR.joinpath(name)
     keras_model.load_weights(weights_dir)
     inputs = np.asarray([[1.0, 0.12, 0.02, 0.64, 0.9, 0.91]])
     from ennuf import keras
-    model = ennuf.keras.from_functional(keras_model, name=name.lower(), long_name='T Anomaly Covariances 01')
+
+    model = ennuf.keras.from_functional(keras_model, name=name.lower(), long_name="T Anomaly Covariances 01")
     model.formatter = MinimalistFormatter()
-    model.create_fortran_module('/data/users/hreid/src/ENNUF/ref/tac001v001/tac01v001_mod.f90')
+    model.create_fortran_module("/data/users/hreid/src/ENNUF/ref/tac001v001/tac01v001_mod.f90")
     template_test_keras_functional(keras_model)

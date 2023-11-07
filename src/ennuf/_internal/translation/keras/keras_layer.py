@@ -60,6 +60,6 @@ def from_layer(parent_ennuf_model: model.Model, layer) -> BaseLayer:
             shape=layer.output_shape[1:],
             inputs=inputs,
             axis=layer.axis,
-            parent_model=parent_ennuf_model
+            parent_model=parent_ennuf_model,
         )
     raise NotImplementedError(f"Could not match a supported layer type to type {type(layer)}")
