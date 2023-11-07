@@ -4,7 +4,7 @@ from pathlib import Path
 import ennuf
 
 
-class TestKGOProgramWriter:
+class KGOProgramWriterTester:
     def __init__(self, model: ennuf.Model):
         self.model = model
         self._program_name = "test_kgo"
@@ -63,7 +63,7 @@ class TestKGOProgramWriter:
             body += f"{self._read_input(layer.name)}\n"
         for layer in self.model.outputs:
             arglist += f"{layer.output_name}, "
-        body += f"CALL {self._nnsubroutine}({arglist[:-2]})\n"
+        body += f"CALL {self._nnsubroutine}({arglist[:-2]})\n\n"
         for layer in self.model.outputs:
             body += f"{self._write_output(layer.name, layer.output_name)}\n"
         return body

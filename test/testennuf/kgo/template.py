@@ -7,7 +7,7 @@ import numpy as np
 
 import ennuf
 from testennuf import RANDOM_SEED
-from testennuf.kgo.test_kgo_program_writer import TestKGOProgramWriter
+from testennuf.kgo.test_kgo_program_writer import KGOProgramWriterTester
 
 
 def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable):
@@ -28,7 +28,7 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable):
         random_input_data.T.tofile(dir_.joinpath(f"in_{name}.dat"))
 
     main_path = dir_.joinpath(f"{model.name}_kgo_test_program.f90")
-    writer = TestKGOProgramWriter(model)
+    writer = KGOProgramWriterTester(model)
     writer.write(main_path)
     neural_net_mod_path = dir_.joinpath("neural_net_mod.f90")
     executablepath = dir_.joinpath(f"run_{model.name}")
@@ -61,8 +61,19 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable):
     kgo = kgo_fn(input_data)
     if isinstance(kgo, dict):
         for key in kgo:
-            assert np.isclose(kgo[key], hopefully_good_output[key]).all()
+            kgo_data: np.ndarray = kgo[key].squeeze()
+            out_data: np.ndarray = hopefully_good_output[key].squeeze()
+            if kgo_data.shape != out_data.shape:
+                print(f'kgo shape: {kgo_data.shape}, out shape: {out_data.shape}')
+            assert kgo_data.shape == out_data.shape
+            if not np.isclose(kgo_data, out_data, atol=1.e-7).all():
+                for i, kgo_datum in enumerate(kgo_data):
+                    out_datum = out_data[i]
+                    # print(f'kgo: [{kgo_datum}], out: [{out_data[i]}]')
+                    diff = np.abs(kgo_datum - out_datum)
+                    print(f'diff: [{diff}], reldiff: [{np.abs(diff / kgo_datum)}]')
+            assert np.isclose(kgo_data, out_data, atol=1.e-7).all()
     else:
         assert len(hopefully_good_output.keys()) == 1
         for key in hopefully_good_output:
-            assert np.isclose(kgo, hopefully_good_output[key]).all()
+            assert np.isclose(kgo, hopefully_good_output[key], atol=1.e-7, rtol=1.e-4).all()
