@@ -2,4 +2,5 @@
 #
 # (C) Crown Copyright, Met Office, 2023.
 #
+set -xe
 mkdocs gh-deploy
