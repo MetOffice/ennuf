@@ -49,6 +49,7 @@ subroutine cholesky_banachiewicz(positive_definite, decomp)
     real(kind=precision) :: sum
     integer i, j, k
     complex(kind=precision) :: aijminussigma, logdecomp
+    real, parameter :: vsmall = tiny( 1.0 )
 
     do i = 1, size(positive_definite,1)
         do j = 1, i
@@ -59,9 +60,13 @@ subroutine cholesky_banachiewicz(positive_definite, decomp)
             if (i == j) then
                 decomp(i, j) = sqrt(positive_definite(i,i) - sum)
             else
-                aijminussigma = complex(positive_definite(i, j) - sum, 0)
-                logdecomp = log(aijminussigma) - log(decomp(j, j))
-                decomp(i, j) = real(exp(logdecomp))
+                if ((positive_definite(i, j) - sum) < vsmall) then
+                    decomp(i, j) = 0
+                else
+                    aijminussigma = complex(positive_definite(i, j) - sum, 0)
+                    logdecomp = log(aijminussigma) - log(decomp(j, j))
+                    decomp(i, j) = real(exp(logdecomp))
+                end if
             end if
         end do
     end do
