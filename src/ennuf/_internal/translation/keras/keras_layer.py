@@ -1,4 +1,4 @@
-#  (C) Crown Copyright, Met Office, 2023.
+#  (C) Crown Copyright, Met Office, 2024.
 """Module for defining how Keras layers should be translated to ennuf layers"""
 from typing import Dict, List
 
@@ -34,9 +34,16 @@ def from_layer(parent_ennuf_model: model.Model, layer) -> BaseLayer:
         # either a user uses names with / or the tf
         # internals change and remove this
         # (by which point hopefully we're no longer using ENNUF)
+        # *** update for tensorflow 2.17 ***
+        # keras layer names now are separate from their input and output names.
+        # layer.output.name will match the layer.input.name of the next layer,
+        # but layer.name tells you the name of the layer itself, which is not
+        # useful.
+
         input_name = input_name.split("/")[0]
+        layer_name = layer.output.name
         return Dense(
-            name=layer.name,
+            name=layer_name,
             inputs=parent_ennuf_model.layer_dict[input_name],
             parent_model=parent_ennuf_model,
             units=layer.units,
@@ -47,17 +54,17 @@ def from_layer(parent_ennuf_model: model.Model, layer) -> BaseLayer:
         )
     if isinstance(layer, tf.keras.layers.InputLayer):
         layer: tf.keras.layers.InputLayer
-        shape = layer.input_shape[0][1:]
-        return InputLayer(name=layer.name, shape=shape, parent_model=parent_ennuf_model)
+        shape = layer.batch_shape[1:]
+        return InputLayer(name=layer.output.name, shape=shape, parent_model=parent_ennuf_model)
     if isinstance(layer, tf.keras.layers.Concatenate):
         layer: tf.keras.layers.Concatenate
         # See Dense above for description of why the weird split is needed
         input_names: List[str] = [inp.name.split("/")[0] for inp in layer.input]
         inputs: List[BaseLayer] = [parent_ennuf_model.layer_dict[name] for name in input_names]
         return Concatenate(
-            name=layer.name,
+            name=layer.output.name,
             # the [1:] is needed to skip the None dimension Keras layers have in position 0.
-            shape=layer.output_shape[1:],
+            shape=layer.output.shape[1:],
             inputs=inputs,
             axis=layer.axis,
             parent_model=parent_ennuf_model,

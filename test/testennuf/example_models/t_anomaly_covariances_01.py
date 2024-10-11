@@ -1,4 +1,4 @@
-#  (C) Crown Copyright, Met Office, 2023.
+#  (C) Crown Copyright, Met Office, 2024.
 import tensorflow as tf
 
 
@@ -10,7 +10,7 @@ class TAnomalyCovariances01:
     def build_function(alpha=0.1) -> tf.keras.Model:
         """Functional API model, entirely dense"""
         # Input reshaping
-        inputs = tf.keras.Input(shape=6, name="inputs")
+        inputs = tf.keras.Input(shape=(6,), name="inputs")
         activation = tf.keras.layers.LeakyReLU(alpha=alpha)
         nnodes = 256
         reg = None

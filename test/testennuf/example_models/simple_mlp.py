@@ -1,5 +1,4 @@
-#  (C) Crown Copyright, Met Office, 2023.
-import tensorflow as tf
+#  (C) Crown Copyright, Met Office, 2024.
 import tensorflow as tf
 
 
@@ -8,7 +7,7 @@ class SimpleMLP:
     def build_functional_easy():
         """Builds some machine learning model with the keras functional API"""
         nnodes = 8
-        inputs = tf.keras.Input(shape=6, name="inputs")
+        inputs = tf.keras.Input(shape=(6,), name="inputs")
         y = tf.keras.layers.Dense(nnodes, activation="relu", name="dense")(inputs)
         outputs = tf.keras.layers.Dense(4, name="outputs")(y)
         return tf.keras.models.Model(inputs=inputs, outputs=outputs)
@@ -19,7 +18,7 @@ class SimpleMLP:
         nnodes = 8
         activation = "relu"
         reg = None
-        scalars = tf.keras.Input(shape=6, name="scalars")
+        scalars = tf.keras.Input(shape=(6,), name="scalars")
         y = tf.keras.layers.Dense(nnodes, activation=activation, kernel_regularizer=reg, name="dense1")(scalars)
         y = tf.keras.layers.Dense(nnodes, activation="sigmoid", kernel_regularizer=reg, name="dense2")(y)
         y = tf.keras.layers.Dense(nnodes, activation="relu", kernel_regularizer=reg, name="dense3")(y)
@@ -34,7 +33,7 @@ class SimpleMLP:
         nnodes = 8
         activation = "relu"
         reg = None
-        scalars = tf.keras.Input(shape=6, name="scalars")
+        scalars = tf.keras.Input(shape=(6,), name="scalars")
         y = tf.keras.layers.Dense(nnodes, activation=activation, kernel_regularizer=reg, name="dense1")(scalars)
         y = tf.keras.layers.Dense(nnodes, activation="sigmoid", kernel_regularizer=reg, name="dense2")(y)
         y = tf.keras.layers.Dense(nnodes, activation="relu", kernel_regularizer=reg, name="dense3")(y)
@@ -50,8 +49,8 @@ class SimpleMLP:
         nnodes2 = 16
         activation = "relu"
         reg = None
-        scalars = tf.keras.Input(shape=6, name="scalars")
-        profile = tf.keras.Input(shape=70, name="profile")
+        scalars = tf.keras.Input(shape=(6,), name="scalars")
+        profile = tf.keras.Input(shape=(70,), name="profile")
         y = tf.keras.layers.Dense(nnodes, activation=activation, kernel_regularizer=reg, name="densey1")(scalars)
         y = tf.keras.layers.Dense(nnodes2, activation="sigmoid", kernel_regularizer=reg, name="densey2")(y)
         y = tf.keras.layers.Dense(nnodes, activation="relu", kernel_regularizer=reg, name="densey3")(y)
@@ -76,7 +75,7 @@ class SimpleMLP:
     def build_sequential():
         nnodes = 8
         model = tf.keras.Sequential()
-        model.add(tf.keras.Input(6))
+        model.add(tf.keras.Input((6,)))
         for activation in ["relu", "sigmoid", "tanh"]:
             model.add(tf.keras.layers.Dense(nnodes, activation=activation))
         return model.compile()
@@ -85,7 +84,7 @@ class SimpleMLP:
     def build_easy_covariance_predictor_separate_outputs(alpha=0.05):
         """Functional API model, entirely dense"""
         # Input reshaping
-        inputs = tf.keras.Input(shape=24, name="inputs")
+        inputs = tf.keras.Input(shape=(24,), name="inputs")
         activation = tf.keras.layers.LeakyReLU(alpha=alpha)
         nnodes = 4
         reg = None
@@ -103,7 +102,7 @@ class SimpleMLP:
     def build_covariance_predictor_separate_outputs(alpha=0.05):
         """Functional API model, entirely dense"""
         # Input reshaping
-        inputs = tf.keras.Input(shape=24, name="inputs")
+        inputs = tf.keras.Input(shape=(24,), name="inputs")
         activation = tf.keras.layers.LeakyReLU(alpha=alpha)
         nnodes = 256
         reg = None
@@ -125,7 +124,7 @@ class SimpleMLP:
     def build_covariance_predictor(alpha=0.1):
         """Functional API model, entirely dense"""
         # Input reshaping
-        inputs = tf.keras.Input(shape=24, name="inputs")
+        inputs = tf.keras.Input(shape=(24,), name="inputs")
         activation = tf.keras.layers.LeakyReLU(alpha=alpha)
         nnodes = 256
         reg = None

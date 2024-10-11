@@ -1,4 +1,4 @@
-#  (C) Crown Copyright, Met Office, 2023.
+#  (C) Crown Copyright, Met Office, 2024.
 from typing import Dict, Type
 
 from ennuf._internal.ml_model.activations.linear import Linear
@@ -48,6 +48,9 @@ class SupportedActivations:
         if activationtype is None:
             return None
         if activationtype is LeakyRelu:
-            alpha = seralized_dict["config"]["alpha"]
+            try:
+                alpha = seralized_dict["config"]["negative_slope"]
+            except KeyError:
+                alpha = serialized_dict["config"]["alpha"]
             return LeakyRelu(alpha=alpha)
         return None
