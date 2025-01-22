@@ -1,10 +1,10 @@
-#  (C) Crown Copyright, Met Office, 2023.
+#  (C) Crown Copyright, Met Office, 2025.
 
 from ennuf._internal.formatters.base_formatter import BaseFormatter
 
 
-class UMFormatter(BaseFormatter):
-    """Formatter for making Fortran files in a UM-compatible way"""
+class MetOfficeUMFormatter(BaseFormatter):
+    """Formatter for making Fortran files in a Met Office UM-compatible way"""
 
     _maxlinelength = 80
 
