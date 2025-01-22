@@ -35,3 +35,18 @@ However, automating this process as much as possible is desirable.
 
 - Add INTENT statements
 - properly handle precision
+- add support for pytorch
+- add support for sklearn
+- add support for more ML model types and components (especially ones we already have the Fortran for)
+- attempt to make tensorflow support more version-independent
+- replace all these raw strings with something more sophisticated:
+  - quick solution: wrap strings corresponding to Fortran code in Fortran statement objects so 
+  that e.g. capitalisation can be handled centrally
+  - slower solution: use file templating software like jinja2 or similar to generate the Fortran code 
+  - solution to look into: use a Fortran abstract syntax tree library to generate the Fortran 
+  code (one definitely exists but how fit for purpose is it?)
+- discuss API design
+- get github runners working
+- have the code reviewed to a publishable state
+- get sign-off to publish from IAO
+- publish!
