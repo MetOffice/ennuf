@@ -14,7 +14,7 @@ url = "https://metoffice.jfrog.io/metoffice/api/pypi/pypi/simple"
 priority = "primary"
 
 [tool.poetry.dependencies]
-python = ">=3.10, <=3.12.5"
+python = ">=3.10, <=3.13"
 tensorflow-cpu = "~2.18"
 numpy = "^1.23"
 
