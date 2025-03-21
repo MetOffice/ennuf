@@ -22,7 +22,7 @@ def from_layer(parent_ennuf_model: model.Model, layer) -> BaseLayer:
         if isinstance(kas_activation, str):
             activation = SupportedActivations.from_identifier(kas_activation)
         elif isinstance(kas_activation, Dict):
-            activation = SupportedActivations.from_serialized_keras_dict(kas_activation)
+            activation = SupportedActivations.from_serialized_dict(kas_activation)
         else:
             activation = None
         input_name: str = layer.input.name
