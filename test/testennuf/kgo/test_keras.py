@@ -21,10 +21,10 @@ def template_test_keras_functional(keras_model):
     template_test_kgo(model, dir_, keras_model.predict)
     shutil.rmtree(dir_)
 
-
 def test_keras_functional_examples():
     keras_model = SimpleMLP.build_functional_easy()
     template_test_keras_functional(keras_model)
+test_keras_functional_examples()
 
 
 def test_functional():
