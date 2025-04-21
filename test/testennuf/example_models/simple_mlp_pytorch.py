@@ -6,6 +6,7 @@ import torch.nn as nn
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class SimpleMLP:
+    @staticmethod
     def build_sequential_simple():
         net = nn.Sequential(
             nn.Linear(1, 6),

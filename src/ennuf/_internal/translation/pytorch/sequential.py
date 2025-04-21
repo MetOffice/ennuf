@@ -28,7 +28,7 @@ def from_sequential(
     ennuf_model = ennufmodel.Model(
         name=name,
         long_name=long_name,
-        output_names=layer_names,
+        output_names=[layer_names[-1]],
         dtype=dtype,
     )
     input_layer=InputLayer(name="input", shape=input_shape, parent_model=ennuf_model)
@@ -65,7 +65,7 @@ def from_sequential(
                     inputs=ennuf_model.layer_dict[input_name],
                     parent_model=ennuf_model,
                     units=layer.weight.shape[0],
-                    weights=layer.weight.detach().numpy(),
+                    weights=layer.weight.detach().numpy().T,
                     biases=biases,
                     activation=activation,
                     use_bias=use_bias,
