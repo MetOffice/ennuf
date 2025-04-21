@@ -9,3 +9,7 @@ dist
 *.out
 *.dat
 site
+
+.idea
+**/__pycache__/
+
