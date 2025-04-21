@@ -21,6 +21,7 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable):
     for input_layer in model.inputs:
         name = input_layer.name
         shape = input_layer.shape
+        print(shape)
         random_input_data = rng.random(size=shape, dtype=np.float32)
         input_data[name] = random_input_data[None]
         random_input_data.T.tofile(dir_.joinpath(f"in_{name}.dat"))

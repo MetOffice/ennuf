@@ -6,6 +6,7 @@ authors = ["Helena Reid <helena.reid@metoffice.gov.uk>"]
 readme = "README.md"
 packages = [
     { include = "ennuf", from = "src" },
+{ include = "testennuf", from = "test" }
 ]
 
 [[tool.poetry.source]]
