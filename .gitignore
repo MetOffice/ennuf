@@ -8,5 +8,5 @@ dist
 *.out
 *.dat
 site
-.idea
+/.idea/
 **/__pycache__/

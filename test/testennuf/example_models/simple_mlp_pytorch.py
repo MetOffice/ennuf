@@ -4,7 +4,8 @@ import torch
 import torch.nn as nn
 
 class SimpleMLP:
-    def build_sequential_simple:
+    @staticmethod
+    def build_sequential_simple(device):
         net = nn.Sequential(
             nn.Linear(3, 4),
             nn.Sigmoid(),
@@ -12,3 +13,7 @@ class SimpleMLP:
             nn.Sigmoid()
             ).to(device)
         return net
+
+    @staticmethod
+    def input_shape():
+        return (3,)
