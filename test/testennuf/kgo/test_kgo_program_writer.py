@@ -46,7 +46,7 @@ class KGOProgramWriterTester:
         return "IMPLICIT NONE"
 
     def _declarations(self) -> str:
-        decls = f"INTEGER :: {self._unitname}\n"
+        decls = f"INTEGER :: {self._unitname} = 1234\n"
         for layer in self.model.inputs:
             decl = layer.get_fortran_type_declaration(self._precision)
             decls = f"{decls}{decl}\n"

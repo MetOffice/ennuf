@@ -16,6 +16,7 @@ def template_test_torch_sequential(torch_model, input_size):
     if dir_.exists():
         shutil.rmtree(dir_)
     dir_.mkdir(parents=True)
+    torch_model.eval()
     template_test_kgo(model, dir_, torch_model)
     shutil.rmtree(dir_)
 
