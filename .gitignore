@@ -3,6 +3,7 @@ example
 *.pytest_cache/
 /poetry.lock
 dist
+*.pyc
 *.o
 *.mod
 *.out
