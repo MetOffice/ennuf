@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ennuf"
-version = "0.2.0"
+version = "0.2.1"
 description = "Easy Neural Networks in Fortran, a package for translating ML models"
 authors = ["Helena Reid <helena.reid@metoffice.gov.uk>"]
 readme = "README.md"
@@ -15,7 +15,7 @@ url = "https://metoffice.jfrog.io/metoffice/api/pypi/pypi/simple"
 priority = "primary"
 
 [tool.poetry.dependencies]
-python = ">=3.10, <=3.12.5"
+python = ">=3.10, <=3.13"
 tensorflow-cpu = "~2.18"
 numpy = "^1.23"
 torch = "^2.6.0"
