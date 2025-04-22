@@ -1,3 +1,4 @@
+# (C) Crown Copyright, Met Office, 2025.
 import torch
 import torch.nn as nn
 from ennuf._internal.ml_model.base_layer import BaseLayer
