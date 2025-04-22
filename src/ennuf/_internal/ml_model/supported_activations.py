@@ -36,7 +36,7 @@ class SupportedActivations:
         return activationtype()
 
     @classmethod
-    def from_serialized_keras_dict(cls, seralized_dict: Dict) -> BaseActivation | None:
+    def from_serialized_dict(cls, seralized_dict: Dict) -> BaseActivation | None:
         """
         Takes a dictionary representation of an activation function of the form that might be returned by Keras,
         and returns an ennuf activation class.

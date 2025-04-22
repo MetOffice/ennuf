@@ -3,9 +3,11 @@ example
 *.pytest_cache/
 /poetry.lock
 dist
+*.pyc
 *.o
 *.mod
 *.out
 *.dat
 site
 .idea
+**/__pycache__/

@@ -6,6 +6,7 @@ authors = ["Helena Reid <helena.reid@metoffice.gov.uk>"]
 readme = "README.md"
 packages = [
     { include = "ennuf", from = "src" },
+{ include = "testennuf", from = "test" }
 ]
 
 [[tool.poetry.source]]
@@ -17,6 +18,7 @@ priority = "primary"
 python = ">=3.10, <=3.13"
 tensorflow-cpu = "~2.18"
 numpy = "^1.23"
+torch = "^2.6.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.2"
