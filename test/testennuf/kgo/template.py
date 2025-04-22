@@ -4,28 +4,36 @@ from pathlib import Path
 from typing import Callable
 
 import numpy as np
+import torch
 
 import ennuf
 from testennuf import RANDOM_SEED
 from testennuf.kgo.test_kgo_program_writer import KGOProgramWriterTester
 
 
-def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable):
+def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable, model_type: str):
     from ennuf.formatters import MinimalistFormatter
 
     model.formatter = MinimalistFormatter()
     model_mod_path = dir_.joinpath(f"{model.name}_mod.f90")
     model.create_fortran_module(model_mod_path, overwrite=True, include_neural_net_mod=True)
     rng = np.random.default_rng(RANDOM_SEED)
-    input_data = {}
-    for input_layer in model.inputs:
-        name = input_layer.name
-        shape = input_layer.shape
-        print(shape)
+    if model_type=="keras":
+        input_data = {}
+        for input_layer in model.inputs:
+            name = input_layer.name
+            shape = input_layer.shape
+            random_input_data = rng.random(size=shape, dtype=np.float32)
+            input_data[name] = random_input_data[None]
+            random_input_data.T.tofile(dir_.joinpath(f"in_{name}.dat"))
+    elif model_type=="pytorch":
+        name = list(model.inputs)[0].name
+        shape = list(model.inputs)[0].shape
         random_input_data = rng.random(size=shape, dtype=np.float32)
-        input_data[name] = random_input_data[None]
+        input_data=random_input_data.copy()
         random_input_data.T.tofile(dir_.joinpath(f"in_{name}.dat"))
-
+    else:
+        raise Exception(f"Unknown model type: {model_type}")
     main_path = dir_.joinpath(f"{model.name}_kgo_test_program.f90")
     writer = KGOProgramWriterTester(model)
     writer.write(main_path)
@@ -55,7 +63,10 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable):
         output_data = np.fromfile(dir_.joinpath(f"out_{name}.dat"), dtype=np.float32, count=np.product(shape))
         output_data = output_data.reshape(shape, order="F")
         hopefully_good_output[name] = output_data
-    kgo = kgo_fn(input_data)
+    if model_type=="pytorch":
+        kgo = kgo_fn(torch.from_numpy(input_data)).detach().numpy()
+    else:
+        kgo = kgo_fn(input_data)
     if isinstance(kgo, dict):
         for key in kgo:
             kgo_data: np.ndarray = kgo[key].squeeze()
