@@ -15,3 +15,16 @@ class SimpleMLP:
             nn.ReLU()
             ).to(device)
         return net
+
+class LessSimpleMLP:
+    @staticmethod
+    def build_sequential():
+        net = nn.Sequential(
+            nn.Linear(2, 20),
+            nn.Sigmoid(),
+            nn.Linear(20, 20),
+            nn.Tanh(),
+            nn.Linear(20,2),
+            nn.LeakyReLU(negative_slope=0.02)
+            ).to(device)
+        return net
