@@ -6,7 +6,7 @@ from typing import List, Set, Iterable
 import numpy as np
 
 from ennuf._internal.config import CONFIG
-from ennuf._internal.fortran import copy_neural_net_mod
+from ennuf._internal.fortran import copy_neural_net_mod, copy_svr_mod
 from ennuf._internal.ml_model.base_layer import BaseLayer
 from ennuf._internal.ml_model.layers import input_layer
 
@@ -87,15 +87,17 @@ class Model:
             f"{self._fortran_module_tail()}"
         )
 
-    def create_fortran_module(self, file: Path | str, overwrite: bool = False, include_neural_net_mod=True) -> None:
+    def create_fortran_module(self, file: Path | str, overwrite: bool = False, include_neural_net_mod=True, include_svr_mod=True) -> None:
         mode = "w" if overwrite else "x"
         if not isinstance(file, Path):
             file = Path(file)
         with open(file, mode, encoding="utf-8") as module_file:
             module_file.write(self.to_fortran())
+        dest_dir = file.parent    
         if include_neural_net_mod:
-            dest_dir = file.parent
             copy_neural_net_mod(dest_dir)
+        if include_svr_mod:
+            copy_svr_mod(dest_dir)
 
     def _fortran_file_head(self) -> str:
         """Returns text that goes at the top of the fortran file"""
@@ -137,7 +139,11 @@ class Model:
                     layer_types_to_import = f"{layer_types_to_import} ,{layer_type.fortran_id()}"
                 else:
                     layer_types_to_import = layer_type.fortran_id()
-        import_stmt = self.formatter.format_line(f"USE neural_net_mod, ONLY: {layer_types_to_import}\n")
+        print(layer_types_to_import)
+        if layer_types_to_import=="svr":
+            import_stmt = self.formatter.format_line(f"USE svr_mod, ONLY: {layer_types_to_import}\n")
+        else:
+            import_stmt = self.formatter.format_line(f"USE neural_net_mod, ONLY: {layer_types_to_import}\n")
         required_imports_stmt = self.formatter.required_subroutine_imports()
         implicit_stmt = self.formatter.format_line("IMPLICIT NONE\n")
         required_decls_stmt = self.formatter.required_subroutine_declarations(subroutine_name)

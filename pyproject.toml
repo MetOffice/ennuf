@@ -19,6 +19,7 @@ python = ">=3.10, <=3.13"
 tensorflow-cpu = "~2.18"
 numpy = "^1.23"
 torch = "^2.6.0"
+scikit-learn = "^1.6.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.2"
