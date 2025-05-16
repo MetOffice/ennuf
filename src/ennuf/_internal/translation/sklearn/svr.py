@@ -24,11 +24,12 @@ def from_svr(
         output_names=[layer_names[-1]],
         dtype=dtype,
     )
-    input_layer=InputLayer(name="input", shape=[sklearn_model.support_vectors_.shape[1]], parent_model=ennuf_model)
+    input_layer=InputLayer(name="input", shape=sklearn_model.support_vectors_.shape[1], parent_model=ennuf_model)
     ennuf_model.layers.append(input_layer)
     svr_layer=SVR_ENNUF(
         name="svr",
         parent_model=ennuf_model,
+        inputs=input_layer,
         dual_coef=sklearn_model.dual_coef_,
         support_vectors=sklearn_model.support_vectors_,
         intercept=sklearn_model.intercept_

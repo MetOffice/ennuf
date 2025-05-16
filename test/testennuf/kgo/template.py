@@ -17,6 +17,7 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable, model_ty
     model.formatter = MinimalistFormatter()
     model_mod_path = dir_.joinpath(f"{model.name}_mod.f90")
     rng = np.random.default_rng(RANDOM_SEED)
+    
     if model_type=="keras":
         model.create_fortran_module(model_mod_path, overwrite=True, include_neural_net_mod=True, include_svr_mod=False)
         input_data = {}
@@ -37,8 +38,8 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable, model_ty
         model.create_fortran_module(model_mod_path, overwrite=True, include_neural_net_mod=False, include_svr_mod=True)
         name = list(model.inputs)[0].name
         shape = list(model.inputs)[0].shape
-        random_input_data = 5 * np.random.rand(1)
-        input_data=random_input_data.copy()
+        random_input_data = rng.random(size=shape, dtype=np.float32)
+        input_data=[random_input_data.copy()]
         random_input_data.T.tofile(dir_.joinpath(f"in_{name}.dat"))
     else:
         raise Exception(f"Unknown model type: {model_type}")
@@ -66,16 +67,11 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable, model_ty
         *object_files,
     ]
     command_run_executable = [f"./{executablepath.name}"]
-    print("wait")
-    input()
     if model_type=="sklearn":
-        print(command_compile_svr)
         subprocess.call(command_compile_svr, cwd=dir_)
     else:
-        print(command_compile_nnmod)
         subprocess.call(command_compile_nnmod, cwd=dir_)
-    print("wait")
-    input()
+
     subprocess.call(command_compile_mmod, cwd=dir_)
     subprocess.call(command_compile_main, cwd=dir_)
     subprocess.call(command_make_executable, cwd=dir_)
@@ -108,4 +104,5 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable, model_ty
     else:
         assert len(hopefully_good_output.keys()) == 1
         for key in hopefully_good_output:
+            print(kgo, hopefully_good_output[key])
             assert np.isclose(kgo, hopefully_good_output[key], atol=1.0e-7, rtol=1.0e-4).all()

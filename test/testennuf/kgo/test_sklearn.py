@@ -9,7 +9,7 @@ import numpy as np
 from testennuf import TMPDIR
 from testennuf.kgo.template import template_test_kgo
 
-def template_test_svr(sklearn_model, input_size):
+def template_test_svr(sklearn_model):
     from ennuf.sklearn import from_svr
 
     model = from_svr(sklearn_model)
@@ -22,14 +22,14 @@ def template_test_svr(sklearn_model, input_size):
 
 def test_svr():
     sklearn_model = SVR(kernel='rbf')
-    X = np.sort(5 * np.random.rand(40, 1),
+    X = np.sort(np.random.rand(40, 1),
             axis=0)
     y = np.sin(X).ravel()
 
     # add some noise to the data
-    y[::5] += 3 * (0.5 - np.random.rand(8))
+    # y[::5] += (0.5 - np.random.rand(8))
 
     sklearn_model.fit(X, y)
-    template_test_svr(sklearn_model,1)
+    template_test_svr(sklearn_model)
 
 test_svr()

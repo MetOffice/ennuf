@@ -11,6 +11,7 @@ class SVR_ENNUF(BaseLayer):
             self,
             name:str,
             parent_model: model.Model,
+            inputs: BaseLayer,
             dual_coef: np.array,
             support_vectors: np.array,
             intercept: float
@@ -18,19 +19,18 @@ class SVR_ENNUF(BaseLayer):
         self.dual_coef = dual_coef
         self.support_vectors = support_vectors
         self.intercept = intercept
-        super().__init__(name, support_vectors.shape[1], None, parent_model)
+        super().__init__(name, support_vectors.shape[1], inputs, parent_model)
 
     def get_fortran_layer_subroutine_call_stmt(self) -> str:
         subroutine_name = self.fortran_id()
-        x_in="inputs"
-        y_out="y_outputs"
+        x_in=self.inputs.output_name
+        y_out="y_svr"
         n_dims=self.shape
-        dual_coef=self.dual_coef
         support_vectors=self.support_vectors
         intercept=self.intercept
         n_support_vectors=support_vectors.shape[0]
         call_stmt = self.parent_model.formatter.format_line(
-            f"CALL {subroutine_name}({x_in},{support_vectors},{dual_coef},{n_support_vectors}, {n_dims}, {y_out}, {intercept})"
+            f"CALL {subroutine_name}({x_in},support_vectors,dual_coef,{n_support_vectors}, {n_dims[0]}, 1, {y_out}, {intercept[0]})"
         )
         return call_stmt
 
@@ -48,13 +48,13 @@ class SVR_ENNUF(BaseLayer):
         input_shape = self.shape[0]
         output_shape = 1
         dual_coef_typedecl = self.parent_model.formatter.format_line(
-            f"REAL(KIND={dtype}) :: dual_coef({self.support_vectors.shape[0]})"
+            f"REAL(KIND={dtype}) :: dual_coef(1,{self.support_vectors.shape[0]})"
         )
         support_vectors_typedecl = self.parent_model.formatter.format_line(
             f"REAL(KIND={dtype}) :: support_vectors({self.support_vectors.shape[0]},{self.support_vectors.shape[1]})"
         )
         output_typedecl = self.parent_model.formatter.format_line(
-            f"REAL(KIND={dtype}) :: y_outputs)"
+            f"REAL(KIND={dtype}) :: y_svr({output_shape})"    
         )
         return f"{dual_coef_typedecl}{support_vectors_typedecl}{output_typedecl}\n"
 

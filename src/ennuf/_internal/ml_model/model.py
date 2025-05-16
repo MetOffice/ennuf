@@ -89,6 +89,7 @@ class Model:
 
     def create_fortran_module(self, file: Path | str, overwrite: bool = False, include_neural_net_mod=True, include_svr_mod=True) -> None:
         mode = "w" if overwrite else "x"
+
         if not isinstance(file, Path):
             file = Path(file)
         with open(file, mode, encoding="utf-8") as module_file:
@@ -139,7 +140,6 @@ class Model:
                     layer_types_to_import = f"{layer_types_to_import} ,{layer_type.fortran_id()}"
                 else:
                     layer_types_to_import = layer_type.fortran_id()
-        print(layer_types_to_import)
         if layer_types_to_import=="svr":
             import_stmt = self.formatter.format_line(f"USE svr_mod, ONLY: {layer_types_to_import}\n")
         else:
@@ -147,6 +147,7 @@ class Model:
         required_imports_stmt = self.formatter.required_subroutine_imports()
         implicit_stmt = self.formatter.format_line("IMPLICIT NONE\n")
         required_decls_stmt = self.formatter.required_subroutine_declarations(subroutine_name)
+
         layer_typedecl_stmts = ""
         layer_init_stmts = ""
         for layer in self.layers:
@@ -156,6 +157,7 @@ class Model:
             layer_inits = layer.get_fortran_data_initialisation()
             layer_init_stmts = f"{layer_init_stmts}{layer_inits}\n"
         required_opening_stmts = self.formatter.required_subroutine_opening_actions()
+
         main_body = ""
         for layer in self.layers:
             # All layers besides input layers have an inputs field; all layers besides input ones

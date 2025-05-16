@@ -19,15 +19,13 @@ def template_test_keras_functional(keras_model):
         shutil.rmtree(dir_)
     dir_.mkdir(parents=True)
     template_test_kgo(model, dir_, keras_model.predict, model_type="keras")
-    print("wait")
-    input()
     shutil.rmtree(dir_)
 
 def test_keras_functional_examples():
     keras_model = SimpleMLP.build_functional_easy()
     template_test_keras_functional(keras_model)
 
-test_keras_functional_examples()
+
 def test_functional():
     keras_model = SimpleMLP.build_functional()
     template_test_keras_functional(keras_model)
