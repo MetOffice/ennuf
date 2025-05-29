@@ -16,9 +16,10 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable, model_ty
 
     model.formatter = MinimalistFormatter()
     model_mod_path = dir_.joinpath(f"{model.name}_mod.f90")
-    model.create_fortran_module(model_mod_path, overwrite=True, include_neural_net_mod=True)
     rng = np.random.default_rng(RANDOM_SEED)
+    
     if model_type=="keras":
+        model.create_fortran_module(model_mod_path, overwrite=True, include_neural_net_mod=True, include_svr_mod=False)
         input_data = {}
         for input_layer in model.inputs:
             name = input_layer.name
@@ -27,21 +28,36 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable, model_ty
             input_data[name] = random_input_data[None]
             random_input_data.T.tofile(dir_.joinpath(f"in_{name}.dat"))
     elif model_type=="pytorch":
+        model.create_fortran_module(model_mod_path, overwrite=True, include_neural_net_mod=True, include_svr_mod=False)
         name = list(model.inputs)[0].name
         shape = list(model.inputs)[0].shape
         random_input_data = rng.random(size=shape, dtype=np.float32)
         input_data=random_input_data.copy()
         random_input_data.T.tofile(dir_.joinpath(f"in_{name}.dat"))
+    elif model_type=="sklearn":
+        model.create_fortran_module(model_mod_path, overwrite=True, include_neural_net_mod=False, include_svr_mod=True)
+        name = list(model.inputs)[0].name
+        shape = list(model.inputs)[0].shape
+        random_input_data = rng.random(size=shape, dtype=np.float32)
+        input_data=[random_input_data.copy()]
+        random_input_data.T.tofile(dir_.joinpath(f"in_{name}.dat"))
     else:
         raise Exception(f"Unknown model type: {model_type}")
+
     main_path = dir_.joinpath(f"{model.name}_kgo_test_program.f90")
     writer = KGOProgramWriterTester(model)
     writer.write(main_path)
     neural_net_mod_path = dir_.joinpath("neural_net_mod.f90")
+    svr_mod_path = dir_.joinpath("svr_mod.f90")
     executablepath = dir_.joinpath(f"run_{model.name}")
-    f90_files = [model_mod_path, neural_net_mod_path, main_path]
+    if model_type=="sklearn":
+        f90_files = [model_mod_path, svr_mod_path, main_path]
+    else:
+        f90_files = [model_mod_path, neural_net_mod_path, main_path]
     object_files = [f90_file.with_suffix(".o") for f90_file in f90_files]
+
     command_compile_nnmod = [ennuf.CONFIG.compiler, "-c", neural_net_mod_path]
+    command_compile_svr = [ennuf.CONFIG.compiler, "-c", svr_mod_path]
     command_compile_mmod = [ennuf.CONFIG.compiler, "-c", model_mod_path]
     command_compile_main = [ennuf.CONFIG.compiler, "-c", main_path]
     command_make_executable = [
@@ -51,7 +67,11 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable, model_ty
         *object_files,
     ]
     command_run_executable = [f"./{executablepath.name}"]
-    subprocess.call(command_compile_nnmod, cwd=dir_)
+    if model_type=="sklearn":
+        subprocess.call(command_compile_svr, cwd=dir_)
+    else:
+        subprocess.call(command_compile_nnmod, cwd=dir_)
+
     subprocess.call(command_compile_mmod, cwd=dir_)
     subprocess.call(command_compile_main, cwd=dir_)
     subprocess.call(command_make_executable, cwd=dir_)
@@ -84,4 +104,5 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable, model_ty
     else:
         assert len(hopefully_good_output.keys()) == 1
         for key in hopefully_good_output:
+            print(kgo, hopefully_good_output[key])
             assert np.isclose(kgo, hopefully_good_output[key], atol=1.0e-7, rtol=1.0e-4).all()
