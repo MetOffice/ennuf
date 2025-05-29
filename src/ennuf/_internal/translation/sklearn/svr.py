@@ -15,6 +15,7 @@ def from_svr(
     sklearn_model:SVR,
     name: str="placeholder",
     long_name: str = "Auto-generated module by ENNUF",
+    formatter = None,
 ) -> ennufmodel.Model:
     layer_names=["input","svr"]
     dtype=sklearn_model.dual_coef_.dtype
@@ -23,6 +24,7 @@ def from_svr(
         long_name=long_name,
         output_names=[layer_names[-1]],
         dtype=dtype,
+        formatter=formatter
     )
     input_layer=InputLayer(name="input", shape=sklearn_model.support_vectors_.shape[1], parent_model=ennuf_model)
     ennuf_model.layers.append(input_layer)
