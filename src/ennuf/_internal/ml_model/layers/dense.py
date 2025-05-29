@@ -67,7 +67,6 @@ class Dense(BaseLayer):
 
     def get_fortran_type_declaration(self, dtype: str) -> str:
         input_shape = self.weights.shape[0]
-        print(input_shape)
         output_shape = self.shape[0]
         weights_typedecl = self.parent_model.formatter.format_line(
             f"REAL(KIND={dtype}) :: {self._weights_name}({input_shape}, {output_shape})"
