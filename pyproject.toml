@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ennuf"
-version = "0.2.1"
+version = "0.3.0"
 description = "Easy Neural Networks in Fortran, a package for translating ML models"
 authors = ["Helena Reid <helena.reid@metoffice.gov.uk>"]
 readme = "README.md"
