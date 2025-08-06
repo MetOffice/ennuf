@@ -12,6 +12,52 @@ IMPLICIT NONE
 CONTAINS
 
     SUBROUTINE dense( &
+    ! input and output data
+    x_in, &
+    y_out, &
+    ! dims of data
+    length_in, &
+    length_out, &
+    ! weights and biases
+    weights, &
+    biases)
+
+    IMPLICIT NONE
+
+    INTEGER, PARAMETER :: precision = 4
+
+    ! Dimensions of the arrays containing the data
+    INTEGER, INTENT(IN) :: &
+      length_in &
+    , length_out
+
+    ! Arrays of data
+    REAL(kind = precision), INTENT(IN)  :: &
+    x_in(length_in)
+    REAL(kind = precision), INTENT(OUT) :: &
+    y_out(length_out)
+
+    ! Weights and biases
+    REAL(kind = precision), INTENT(IN) :: &
+      weights(length_out, length_in) &
+    , biases(length_out)
+
+    !Auxiliary variables
+    INTEGER :: l_in, l_out
+
+
+    DO l_out=1, length_out
+       DO l_in=1, length_in
+          y_out(l_out) = x_in(i) * weights(j,i)
+       END DO
+       y_out(l_out) = y_out(l_out) + biases(j)
+    END DO
+
+    END SUBROUTINE dense
+
+! --------------------------------------------------------------------------------------------------
+
+    SUBROUTINE dense_2d( &
     ! data arrays (input and output)
     x_in, &
     y_out, &
@@ -23,15 +69,13 @@ CONTAINS
     weights, &
     biases)
 
-    ! I need to change things
     IMPLICIT NONE
 
     INTEGER, PARAMETER :: precision = 4
 
     ! Dimensions of the arrays containing the data
     INTEGER, INTENT(IN) :: &
-      channels  &
-    , length_in &
+      length_in &
     , length_out
 
     ! Arrays of data
@@ -58,7 +102,7 @@ CONTAINS
         END DO
     END DO
 
-    END SUBROUTINE dense
+    END SUBROUTINE dense_2d
 
 !-----------------------------------------------------------------------------------------------------
     SUBROUTINE conv_1d( &
@@ -115,7 +159,7 @@ CONTAINS
     ! Intermediate array 
     INTEGER :: &
 	length_inter
-    REAL(kind = precision), ALLOCATABLE :: &
+    REAL(kind = real_umphys), ALLOCATABLE :: &
     inter(:,:)
     
     ! Auxiliary variables
@@ -192,13 +236,14 @@ CONTAINS
     INTEGER, INTENT(IN) :: &
       channels &
     , length_in &
-    , length_out
-    
+    , length_out &
+    , size_kernel
+
     ! Input and output arrays
     REAL(kind = precision),   INTENT(IN) :: &
-    x_in(channels, length_in)
+    x_in(channels_in, length_in)
     REAL(kind = precision), INTENT(OUT) :: &
-    y_out(channels, length_out)
+    y_out(channels_out, length_out)
 
     ! padding and stride 
     INTEGER, INTENT(IN) :: &
@@ -214,7 +259,7 @@ CONTAINS
     ! Intermediate array 
     INTEGER :: &
 	length_inter
-    REAL(kind = precision), ALLOCATABLE :: &
+    REAL(kind = real_umphys), ALLOCATABLE :: &
     inter(:,:)
     
     ! Auxiliary variables
@@ -240,7 +285,7 @@ CONTAINS
 
         inter = -9999.99
 	    DO c=1, channels
-	        inter(c,padding+1:-padding-1) = x_in(c,:)
+	        inter(c,padding+1:-padding-1) = x_in(i,:)
 	    END DO
         
         DO c=1, channels
@@ -255,7 +300,7 @@ CONTAINS
 
         inter = 0.0
 	    DO c=1, channels
-	        inter(c,padding+1:-padding-1) = x_in(c,:)
+	        inter(c,padding+1:-padding-1) = x_in(i,:)
 	    END DO
             
         DO c=1, channels
