@@ -5,6 +5,7 @@ import shutil
 import pytest
 
 from testennuf import TMPDIR, WEIGHTS_DIR
+from testennuf.example_models.sequential import SequentialExamples
 from testennuf.example_models.simple_mlp import SimpleMLP
 from testennuf.example_models.t_anomaly_covariances_01 import TAnomalyCovariances01
 from testennuf.kgo.template import template_test_kgo
@@ -20,6 +21,30 @@ def template_test_keras_functional(keras_model):
     dir_.mkdir(parents=True)
     template_test_kgo(model, dir_, keras_model.predict, model_type="keras")
     shutil.rmtree(dir_)
+
+def template_test_keras_sequential(keras_model):
+    from ennuf.keras import from_sequential
+
+    model = from_sequential(keras_model)
+    dir_ = TMPDIR.joinpath("keras", f"{model.name}")
+    if dir_.exists():
+        shutil.rmtree(dir_)
+    dir_.mkdir(parents=True)
+    template_test_kgo(model, dir_, keras_model.predict, model_type="keras")
+    shutil.rmtree(dir_)
+
+
+def test_keras_sequential():
+    keras_model = SequentialExamples.simple_mlp()
+    template_test_keras_sequential(keras_model)
+
+def test_keras_sequential_with_activations():
+    keras_model = SequentialExamples.simple_mlp_with_activations()
+    template_test_keras_sequential(keras_model)
+
+def test_keras_sequential_with_activation_layers():
+    keras_model = SequentialExamples.simple_mlp_with_activations_as_layers()
+    template_test_keras_sequential(keras_model)
 
 def test_keras_functional_examples():
     keras_model = SimpleMLP.build_functional_easy()

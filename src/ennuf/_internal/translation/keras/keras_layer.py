@@ -12,7 +12,7 @@ import ennuf._internal.ml_model.model as model
 from ennuf._internal.ml_model.supported_activations import SupportedActivations
 
 
-def from_layer(parent_ennuf_model: model.Model, layer) -> BaseLayer:
+def from_layer(parent_ennuf_model: model.Model, layer, previous_layer_name=None) -> BaseLayer:
     """Takes a keras model and a keras layer and returns an equivalent ennuf layer."""
     if isinstance(layer, tf.keras.layers.Dense):
         layer: tf.keras.layers.Dense
@@ -25,7 +25,7 @@ def from_layer(parent_ennuf_model: model.Model, layer) -> BaseLayer:
             activation = SupportedActivations.from_serialized_dict(kas_activation)
         else:
             activation = None
-        input_name: str = layer.input.name
+        input_name: str = layer.input.name if previous_layer_name is None else previous_layer_name
         # keras layer names are like,
         # if the previous layer was dense layer "dense3", that's internally several layers
         # potentially, perhaps ending with "dense3/BiasAdd:0"
@@ -40,7 +40,7 @@ def from_layer(parent_ennuf_model: model.Model, layer) -> BaseLayer:
         # but layer.name tells you the name of the layer itself, which is not
         # useful.
 
-        input_name = input_name.split("/")[0]
+        input_name = input_name.split("/")[0] if previous_layer_name is None else previous_layer_name
         layer_name = layer.output.name
         return Dense(
             name=layer_name,
