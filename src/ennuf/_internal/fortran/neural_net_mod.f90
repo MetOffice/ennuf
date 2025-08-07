@@ -207,15 +207,15 @@ CONTAINS
 
     ! Pooling choices
     CHARACTER(LEN=3)    :: &
-    choice_of_pooling
+     choice_of_pooling
     INTEGER, INTENT(IN) :: &
-    pool_size
+     pool_size
 
     ! Intermediate array 
     INTEGER :: &
-	length_inter
+     length_inter
     REAL(kind = precision), ALLOCATABLE :: &
-    inter(:,:)
+     inter(:,:)
     
     ! Auxiliary variables
     INTEGER :: c,l, s
@@ -298,7 +298,7 @@ CONTAINS
 
     ! Dimensions of the data array
     INTEGER, INTENT(IN)  :: &
-      channels
+      channels &
     , length
     
     ! Array with the data
@@ -312,12 +312,11 @@ CONTAINS
      activation
 
     ! Optional argument (negative slope for the Leaky ReLU)
-    REAL(kind = precision), OPTIONAL, INTENT(IN) ::
+    REAL(kind = precision), OPTIONAL, INTENT(IN) :: &
      alpha
 
-
-    INTEGER :: &
-     c,l
+    ! Auxiliary variables 
+    INTEGER :: c,l
 
     IF(PRESENT(arg_alpha)) THEN
         IF(activation /= "leakyrelu ") THEN
@@ -387,14 +386,53 @@ CONTAINS
 
     END SUBROUTINE activation_function
 
-!--------------------------------------------------------------------------------------------------
+!-------------------------------------------------------------------------
 
+    
+    SUBROUTINE concatenate( &
+    ! data arrays (inputs and output)
+    x1_in, &
+    x2_in, &
+    y_out, &
+    ! dimensions of input arrays
+    channels, &
+    length)
+
+    IMPLICIT NONE
+
+    INTEGER, PARAMETER :: precision = 4
+
+    ! Dimensions of input arrays
+    INTEGER, INTENT(IN) :: &
+      channels &
+    , length
+
+    ! Input arrays of data
+    REAL(kind=precision), INTENT(IN) :: &
+      x1_in(channels,length) &
+    , x2_in(channels,length)
+
+    ! Output array of data
+    REAL(kind=precision), INTENT(OUT) :: &
+      y_out(channels, INT(2*length))
+
+    ! Auxiliary variable
+    INTEGER :: c
+
+    DO c=1, channels
+       y_out(c,:length) = x1_in(c,:)
+       y_out(c,length+1:) = x2_in(c,:)
+    END DO
+
+    END SUBROUTINE concatenate
+
+!---------------------------------------------------------------
+    
     SUBROUTINE pixel_shuffle_1d(&
     ! arrays for input and output
-    input, &
-    output, &
+    x_in, &
+    y_out, &
     ! dimensions of data
-    number_samples, &
     channels_in, &
     channels_out, &
     length_in, &
@@ -403,40 +441,33 @@ CONTAINS
     upscale_factor)
 
     IMPLICIT NONE
-    !
-    ! Purpose:
-    !   This subroutine performa a 1D Pixel Shuffle,
-    !   for use in ML applications in the models
-
-    ! Method:
-    !   The subroutine gets as input 1D signals and
-    !   upsamples them by the factor chosen by the user
-    !
-
-    ! Subroutine Arguments:-----------------------------------------------
 
     INTEGER, PARAMETER :: precision = 4
 
     ! Dimensions of arrays
-    INTEGER, INTENT(in) :: number_samples, channels_in, length_in, channels_out, length_out
+    INTEGER, INTENT(IN) :: &
+      channels_in &
+    , length_in &
+    , channels_out &
+    , length_out
 
     ! Data arrays
-    REAL(kind=precision), DIMENSION(number_samples, channels_in, length_in)    :: input
-    REAL(kind=precision), DIMENSION(number_samples, channels_out, length_out)  :: output
+    REAL(kind=precision), INTENT(IN) :: &
+     x_in(channels_in, length_in)
+    REAL(kind=precision), INTENT(OUT) :: &
+     y_out(channels_out, length_out)
 
     ! Upscale factor
-    INTEGER, INTENT(in) :: upscale_factor
+    INTEGER, INTENT(IN) :: &
+     upscale_factor
 
     ! Intermediate arrays
-    REAL(kind=precision), DIMENSION(number_samples, upscale_factor, channels_out, length_in) :: i_1
-    REAL(kind=precision), DIMENSION(number_samples, channels_out, length_in, upscale_factor) :: i_2
+    REAL(kind=precision) :: &
+      inter1(upscale_factor, channels_out, length_in) &
+    , inter2(channels_out, length_in, upscale_factor)
 
     ! Auxiliary variables
-    INTEGER :: n,c,u,j,l
-
-    ! -------------------------------------------------
-    ! Check for consistency in array dimensions
-    ! -------------------------------------------------
+    INTEGER :: c,u,j,l
 
     IF( channels_out /= INT(channels_in / upscale_factor) ) THEN
         PRINT*, "ERROR: "
@@ -450,115 +481,26 @@ CONTAINS
         CALL EXIT(1)
     END IF
 
-    ! Main block: --------------------------------------
-    ! Transform the data with the help of two auxiliary
-    ! arrays by looping round all the samples
-    ! --------------------------------------------------
-
-    DO n=1, number_samples
-        j=1
-        DO u=1, upscale_factor
-            i_1(:,u,:,:) = input(:,j:j+channels_out,:)
-            j = j + channels_out
-        END DO
+    j=1
+    DO u=1, upscale_factor
+       inter1(u,:,:) = x_in(j:j+channels_out,:)
+       j = j + channels_out
     END DO
 
-    DO n=1, number_samples
-        DO c=1, channels_out
-            DO u=1, upscale_factor
-                i_2(n,c,:,u) = i_1(n,u,c,:)
-            END DO
-        END DO
+    DO c=1, channels_out
+       DO u=1, upscale_factor
+          inter2(c,:,u) = inter1(u,c,:)
+       END DO
     END DO
-
-    DO n=1, number_samples
-        DO c=1, channels_out
-            j=1
-            DO l=1, length_in
-                output(n,c,j:j+upscale_factor) = i_2(n,c,l,:)
-                j = j + upscale_factor
-            END DO
-        END DO
+  
+    DO c=1, channels_out
+       j=1
+       DO l=1, length_in
+          y_out(c,j:j+upscale_factor) = inter2(c,l,:)
+          j = j + upscale_factor
+       END DO
     END DO
 
     END SUBROUTINE pixel_shuffle_1d
-
-
-!------------------------------------------------------------------------------------------------------
-
-
-    SUBROUTINE concatenate_1d(x_in_1, x_in_2, y_out)
-        IMPLICIT NONE
-        INTEGER, PARAMETER :: precision = 4
-        REAL(KIND=precision), DIMENSION(:), INTENT(IN) :: x_in_1, x_in_2
-        REAL(KIND=precision), DIMENSION(:), INTENT(OUT) :: y_out
-        INTEGER :: len1, len2, total_len
-        len1 = SIZE(x_in_1)
-        len2 = SIZE(x_in_2)
-        total_len = len1 + len2
-        IF (SIZE(y_out) /= total_len) THEN
-            PRINT*, 'Arr y_out had size:'
-            PRINT*, SIZE(y_out)
-            PRINT*, 'but was expecting:'
-            PRINT*, total_len
-            PRINT*, 'exiting...'
-            CALL EXIT(1)
-        END IF
-        y_out(1:len1) = x_in_1
-        y_out(len1+1:total_len) = x_in_2
-    END SUBROUTINE concatenate_1d
-    
-! -----------------------------------------------------------------------------------------------------
-
-    SUBROUTINE skip_connection( &
-    ! data arrays (inputs and output)
-    input_1, &
-    input_2, &
-    output, &
-    ! dimensions of input arrays
-    number_samples, &
-    channels, &
-    length)
-
-    IMPLICIT NONE
-    !
-    ! Purpose:
-    !   This subroutine acts as a Skip Connection
-    !   for use in ML applications in the models
-
-    ! Method:
-    !   The subroutine gets as input two sets of
-    !   1D signals and concatentes them together
-
-    ! Subroutine Arguments:-----------------------------------------------
-
-    INTEGER, PARAMETER :: precision = 4
-
-    ! Dimensions of input arrays
-    INTEGER, INTENT(in) :: number_samples, channels, length
-
-    ! Input arrays of data
-    REAL(kind=precision), DIMENSION(number_samples, channels, length) :: input_1
-    REAL(kind=precision), DIMENSION(number_samples, channels, length) :: input_2
-
-    ! Output array of data
-    REAL(kind=precision), DIMENSION(number_samples, INT(channels * 2 ), length) :: output
-
-    ! Auxiliary variables
-    INTEGER :: n,c
-
-    ! Main block: ----------------------------------------------
-    ! Loop round samples and concatenate the two
-    ! input arraystogether into the ouput array
-    ! ----------------------------------------------------------
-
-    DO n=1, number_samples
-        DO c=1, channels
-            output(n,c,:) = input_1(n,c,:)
-            output(n,c+channels,:) = input_2(n,c,:)
-        END DO
-    END DO
-
-    END SUBROUTINE skip_connection
 
 END MODULE neural_net_mod
