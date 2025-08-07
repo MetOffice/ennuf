@@ -318,7 +318,7 @@ CONTAINS
     ! Auxiliary variables 
     INTEGER :: c,l
 
-    IF(PRESENT(arg_alpha)) THEN
+    IF(PRESENT(alpha)) THEN
         IF(activation /= "leakyrelu ") THEN
             PRINT*, "WARNING: "
             PRINT*, "The activation function you chose does not take alpha as an argument."
@@ -327,7 +327,7 @@ CONTAINS
     END IF
      
     IF(activation == "leakyrelu ") THEN
-        IF(.NOT. PRESENT(arg_alpha)) THEN
+        IF(.NOT. PRESENT(alpha)) THEN
             PRINT*, "WARNING: "
             PRINT*, "The activation function you chose takes alpha as an argument but no alpha was found."
         END IF
