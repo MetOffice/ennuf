@@ -11,7 +11,7 @@ packages = [
 
 [[tool.poetry.source]]
 name = "mo-pypi"
-url = "https://metoffice.jfrog.io/metoffice/api/pypi/pypi/simple"
+url = "https://metoffice.jfrog.io/metoffice/api/pypi/pypi"
 priority = "primary"
 
 [tool.poetry.dependencies]
