@@ -5,9 +5,9 @@
 ! *****************************COPYRIGHT*******************************
 
 MODULE neural_net_mod
-! Contains subroutines for 1d dense layers, plus layers common in CNNs:
-! pooling1d, conv1d, pixelshuffle1d, skip connection, dense3d (which takes and returns 3d inputs but is otherwise
-! just a regular dense layer)
+! Contains subroutines for 1d dense layers, plus layers common in 1D FCNNs and CNNs:
+  ! pooling, conv, skip connection, dense and activation functions
+  
 IMPLICIT NONE
 CONTAINS
 
@@ -281,53 +281,43 @@ CONTAINS
 !------------------------------------------------------------------------------------
 
     SUBROUTINE activation_function(&
-    ! array with data
-    input, &
-    output, &
-    ! dimensions of array
-    number_samples, &
+    ! arrays with data
+    x_in, &
+    y_out, &
+    ! dimensions of arrays
     channels, &
     length, &
     ! choice of activation function
     activation, &
     ! optional argument (alpha for leaky relu)
-    arg_alpha)
+    alpha)
 
     IMPLICIT NONE
-    !
-    ! Purpose:
-    !   This subroutine apllies a chosen activation function
-    !   to the input, for use in ML applications in the models
-
-    ! Method:
-    !   The subroutine gets as input 1D signals and then
-    !   computes the output from them depending on the
-    !   activation function chosen by the user
-    !
-
-    ! Subroutine Arguments:-----------------------------------------------
 
     INTEGER, PARAMETER :: precision = 4
 
     ! Dimensions of the data array
-    INTEGER, INTENT(in)  :: number_samples,channels, length
+    INTEGER, INTENT(IN)  :: &
+      channels
+    , length
+    
     ! Array with the data
-    REAL(kind = precision), DIMENSION(number_samples, channels, length) :: input
-    REAL(kind = precision), DIMENSION(number_samples, channels, length) :: output
+    REAL(kind = precision),   INTENT(IN) :: &
+     x_in(channels, length)
+    REAL(kind = precision), INTENT(OUT) :: &
+     y_out(channels, length)
 
     ! Choice of Activation Funtion
-    CHARACTER (LEN=10) :: activation
+    CHARACTER (LEN=10), INTENT(IN) :: &
+     activation
 
     ! Optional argument (negative slope for the Leaky ReLU)
-    REAL(kind = precision), OPTIONAL, INTENT(in) :: arg_alpha
-    REAL(kind = precision)                       :: alpha
+    REAL(kind = precision), OPTIONAL, INTENT(IN) ::
+     alpha
 
-    ! Auxiliary variables
-    INTEGER :: n,c,l
 
-    ! -------------------------------------------------
-    ! Warning message for inconsisency in arguments
-    ! -------------------------------------------------
+    INTEGER :: &
+     c,l
 
     IF(PRESENT(arg_alpha)) THEN
         IF(activation /= "leakyrelu ") THEN
@@ -336,67 +326,53 @@ CONTAINS
             PRINT*, "alpha is the negative slope for the Leaky ReLU"
         END IF
     END IF
-
-    ! Main block: --------------------------------------
-    ! Select choice of activation function and loop
-    ! round samples to calculate the output
-    ! --------------------------------------------------
+     
+    IF(activation == "leakyrelu ") THEN
+        IF(.NOT. PRESENT(arg_alpha)) THEN
+            PRINT*, "WARNING: "
+            PRINT*, "The activation function you chose takes alpha as an argument but no alpha was found."
+        END IF
+    END IF
 
     SELECT CASE (activation)
 
     CASE ("relu      ")
 
-        DO n=1,number_samples
-            DO c=1, channels
-                DO l=1, length
-                    output(n,c,l) = max(0.0, input(n,c,l))
-                END DO
-            END DO
-        END DO
+       DO c=1, channels
+          DO l=1, length
+             y_out(c,l) = max(0.0, x_in(c,l))
+          END DO
+       END DO
 
     CASE ("leakyrelu ")
 
-        IF(PRESENT(arg_alpha)) THEN
-            alpha = arg_alpha
-        ELSE
-            alpha = 0.01 ! default value
-        END IF
-
-        DO n=1,number_samples
-            DO c=1, channels
-                DO l=1, length
-                    output(n,c,l) = max(alpha*input(n,c,l),input(n,c,l))
-                END DO
-            END DO
+        DO c=1, channels
+           DO l=1, length
+              y_out(c,l) = max(alpha*x_in(c,l), x_in(c,l))
+           END DO
         END DO
 
     CASE ("sigmoid   ")
 
-        DO n=1,number_samples
-            DO c=1, channels
-                DO l=1, length
-                    output(n,c,l) = 1.0 / ( 1.0 + exp(-input(n,c,l)) )
-                END DO
+        DO c=1, channels
+            DO l=1, length
+                y_out(c,l) = 1.0 / ( 1.0 + exp(-x_in(c,l)) )
             END DO
         END DO
 
     CASE ("tanh      ")
 
-        DO n=1,number_samples
-            DO c=1, channels
-                DO l=1, length
-                    output(n,c,l) = tanh(input(n,c,l))
-                END DO
-            END DO
+        DO c=1, channels
+           DO l=1, length
+              y_out(c,l) = tanh(x_in(c,l))
+           END DO
         END DO
 
     CASE ("softmax   ")
 
-        DO n=1,number_samples
-            DO c=1, channels
-                DO l=1, length
-                    output(n,c,l) = exp(input(n,c,l)) / SUM( exp(input(n,c,:)) )
-                END DO
+        DO c=1, channels
+            DO l=1, length
+               y_out(c,l) = exp(x_in(c,l)) / SUM( exp(x_in(c,:)) )
             END DO
         END DO
 
@@ -404,7 +380,7 @@ CONTAINS
         PRINT*, "ERROR: "
         PRINT*,'You have asked for an activation function that is not available.'
         PRINT*,'Please check your spelling or add it as an option.'
-        PRINT*,'Currently available functions are: ReLU, Leaky ReLU, Sigmoid, Tanh and Softmax.'
+        PRINT*,'Currently available functions are: relu, leakyrelu, sigmoid, tanh and softmax.'
         CALL EXIT(1)
 
     END SELECT
