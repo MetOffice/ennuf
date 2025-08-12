@@ -109,8 +109,8 @@ CONTAINS
     , stride &
     , dilation
 
-	CHARACTER (LEN=7), INTENT(IN) :: &
-	pad_mode 
+    CHARACTER (LEN=7), INTENT(IN) :: &
+      pad_mode 
 
     ! Intermediate array 
     INTEGER :: &
