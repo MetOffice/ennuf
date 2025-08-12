@@ -389,7 +389,7 @@ CONTAINS
 !-------------------------------------------------------------------------
 
     
-    SUBROUTINE concatenate( &
+    SUBROUTINE concatenate_1d( &
     ! data arrays (inputs and output)
     x1_in, &
     x2_in, &
@@ -424,7 +424,7 @@ CONTAINS
        y_out(c,length+1:) = x2_in(c,:)
     END DO
 
-    END SUBROUTINE concatenate
+    END SUBROUTINE concatenate_1d
 
 !---------------------------------------------------------------
     
