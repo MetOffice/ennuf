@@ -30,3 +30,12 @@ class SequentialExamples:
         model.add(tf.keras.layers.Dense(8, activation="relu"))
         model.add(tf.keras.layers.Dense(2))
         return model
+
+    @staticmethod
+    def simple_mlp_with_reshape():
+        model = tf.keras.Sequential()
+        model.add(tf.keras.Input(shape=(4,)))
+        model.add(tf.keras.layers.Dense(8))
+        model.add(tf.keras.layers.Dense(8))
+        model.add(tf.keras.layers.Reshape((2, 4)))
+        return model
