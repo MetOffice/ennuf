@@ -8,6 +8,6 @@ VERSION="$(poetry version --short)"
 # publish to mo internal pypi (must have configured poetry to know where this repository is and have credentials)
 poetry publish --repository mo-pypi
 # publish to mo internal conda
-whl2conda convert "dist/ennuf-${VERSION}-py3-none-any.whl"
+poetry run whl2conda convert "dist/ennuf-${VERSION}-py3-none-any.whl"
 curl -n -XPUT "https://metoffice.jfrog.io/metoffice/conda-mo-internal/noarch/"  -T "dist/ennuf-${VERSION}-py_0.conda"
 echo "published successfully!"

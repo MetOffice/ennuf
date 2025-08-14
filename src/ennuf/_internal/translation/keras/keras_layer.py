@@ -7,6 +7,7 @@ import tensorflow as tf
 from ennuf._internal.ml_model.base_layer import BaseLayer
 from ennuf._internal.ml_model.layers.concatenate import Concatenate
 from ennuf._internal.ml_model.layers.dense import Dense
+from ennuf._internal.ml_model.layers.reshape import Reshape
 from ennuf._internal.ml_model.layers.input_layer import InputLayer
 import ennuf._internal.ml_model.model as model
 from ennuf._internal.ml_model.supported_activations import SupportedActivations
@@ -68,5 +69,16 @@ def from_layer(parent_ennuf_model: model.Model, layer, previous_layer_name=None)
             inputs=inputs,
             axis=layer.axis,
             parent_model=parent_ennuf_model,
+        )
+    if isinstance(layer, tf.keras.layers.Reshape):
+        layer: tf.keras.layers.Reshape
+        input_name = previous_layer_name
+        if input_name is None:
+            raise NotImplementedError(f"Cannot fetch name of input to reshape layer other than when provided directly.")
+        return Reshape(
+            name=layer.output.name,
+            shape=layer.target_shape,
+            inputs=parent_ennuf_model.layer_dict[input_name],
+            parent_model=parent_ennuf_model
         )
     raise NotImplementedError(f"Could not match a supported layer type to type {type(layer)}")

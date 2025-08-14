@@ -46,6 +46,10 @@ def test_keras_sequential_with_activation_layers():
     keras_model = SequentialExamples.simple_mlp_with_activations_as_layers()
     template_test_keras_sequential(keras_model)
 
+def test_keras_with_reshape():
+    keras_model = SequentialExamples.simple_mlp_with_reshape()
+    template_test_keras_sequential(keras_model)
+
 def test_keras_functional_examples():
     keras_model = SimpleMLP.build_functional_easy()
     template_test_keras_functional(keras_model)

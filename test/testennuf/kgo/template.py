@@ -104,5 +104,7 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable, model_ty
     else:
         assert len(hopefully_good_output.keys()) == 1
         for key in hopefully_good_output:
-            print(kgo, hopefully_good_output[key])
+            print(f"{kgo=}\n {hopefully_good_output[key]=}")
+            print(kgo.shape, hopefully_good_output[key].shape)
+            # FIXME: RESHAPE TEST FAILS BECAUSE RESHAPE IN FORTRAN IS COLUMN MAJOR
             assert np.isclose(kgo, hopefully_good_output[key], atol=1.0e-7, rtol=1.0e-4).all()
