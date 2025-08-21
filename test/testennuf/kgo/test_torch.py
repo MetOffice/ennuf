@@ -9,7 +9,7 @@ from testennuf.example_models.t_anomaly_covariances_01 import TAnomalyCovariance
 from testennuf.kgo.template import template_test_kgo
 
 
-def template_test_torch_sequential(torch_model, input_size):
+def template_test_torch_sequential(torch_model, input_size: tuple[int]):
     from ennuf.pytorch import from_sequential
 
     model = from_sequential(torch_model,input_size)
@@ -24,10 +24,10 @@ def template_test_torch_sequential(torch_model, input_size):
 
 def test_pytorch_sequential_1():
     torch_model = SimpleMLP.build_sequential_simple()
-    template_test_torch_sequential(torch_model,1)
+    template_test_torch_sequential(torch_model,(1,))
 
 
 def test_pytorch_sequential_2():
     torch_model = LessSimpleMLP.build_sequential()
-    template_test_torch_sequential(torch_model,2)
+    template_test_torch_sequential(torch_model,(2,))
 

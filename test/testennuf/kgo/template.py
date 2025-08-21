@@ -11,7 +11,7 @@ from testennuf import RANDOM_SEED
 from testennuf.kgo.test_kgo_program_writer import KGOProgramWriterTester
 
 
-def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable, model_type: str):
+def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable, model_type: str, atol=1.0e-7, rtol=1.0e-4):
     from ennuf.formatters import MinimalistFormatter
 
     model.formatter = MinimalistFormatter()
@@ -23,14 +23,14 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable, model_ty
         input_data = {}
         for input_layer in model.inputs:
             name = input_layer.name
-            shape = input_layer.shape
+            shape = input_layer.shape_without_channels_if_not_provided
             random_input_data = rng.random(size=shape, dtype=np.float32)
             input_data[name] = random_input_data[None]
             random_input_data.T.tofile(dir_.joinpath(f"in_{name}.dat"))
     elif model_type=="pytorch":
         model.create_fortran_module(model_mod_path, overwrite=True, include_neural_net_mod=True, include_svr_mod=False)
         name = list(model.inputs)[0].name
-        shape = list(model.inputs)[0].shape
+        shape = list(model.inputs)[0].shape_without_channels_if_not_provided
         random_input_data = rng.random(size=shape, dtype=np.float32)
         input_data=random_input_data.copy()
         random_input_data.T.tofile(dir_.joinpath(f"in_{name}.dat"))
@@ -43,6 +43,7 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable, model_ty
         random_input_data.T.tofile(dir_.joinpath(f"in_{name}.dat"))
     else:
         raise Exception(f"Unknown model type: {model_type}")
+
 
     main_path = dir_.joinpath(f"{model.name}_kgo_test_program.f90")
     writer = KGOProgramWriterTester(model)
@@ -94,17 +95,18 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable, model_ty
             if kgo_data.shape != out_data.shape:
                 print(f"kgo shape: {kgo_data.shape}, out shape: {out_data.shape}")
             assert kgo_data.shape == out_data.shape
-            if not np.isclose(kgo_data, out_data, atol=1.0e-7).all():
+            if not np.isclose(kgo_data, out_data, atol=atol).all():
                 for i, kgo_datum in enumerate(kgo_data):
                     out_datum = out_data[i]
                     # print(f'kgo: [{kgo_datum}], out: [{out_data[i]}]')
                     diff = np.abs(kgo_datum - out_datum)
                     print(f"diff: [{diff}], reldiff: [{np.abs(diff / kgo_datum)}]")
-            assert np.isclose(kgo_data, out_data, atol=1.0e-7).all()
+            print(f"{kgo_data=}\n {out_data=}")
+            print(f"{kgo_data.shape=}, {out_data.shape=}")
+            assert np.isclose(kgo_data, out_data, atol=atol).all()
     else:
         assert len(hopefully_good_output.keys()) == 1
         for key in hopefully_good_output:
             print(f"{kgo=}\n {hopefully_good_output[key]=}")
             print(kgo.shape, hopefully_good_output[key].shape)
-            # FIXME: RESHAPE TEST FAILS BECAUSE RESHAPE IN FORTRAN IS COLUMN MAJOR
-            assert np.isclose(kgo, hopefully_good_output[key], atol=1.0e-7, rtol=1.0e-4).all()
+            assert np.isclose(kgo, hopefully_good_output[key], atol=atol, rtol=rtol).all()

@@ -26,7 +26,7 @@ def from_svr(
         dtype=dtype,
         formatter=formatter
     )
-    input_layer=InputLayer(name="input", shape=sklearn_model.support_vectors_.shape[1], parent_model=ennuf_model)
+    input_layer=InputLayer(name="input", has_channels=True, shape=sklearn_model.support_vectors_.shape[1], parent_model=ennuf_model)
     ennuf_model.layers.append(input_layer)
     svr_layer=SVR_ENNUF(
         name="svr",

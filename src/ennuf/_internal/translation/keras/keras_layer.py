@@ -7,13 +7,15 @@ import tensorflow as tf
 from ennuf._internal.ml_model.base_layer import BaseLayer
 from ennuf._internal.ml_model.layers.concatenate import Concatenate
 from ennuf._internal.ml_model.layers.dense import Dense
+from ennuf._internal.ml_model.layers.activation import Activation
+from ennuf._internal.ml_model.activations.linear import Linear
 from ennuf._internal.ml_model.layers.reshape import Reshape
 from ennuf._internal.ml_model.layers.input_layer import InputLayer
 import ennuf._internal.ml_model.model as model
 from ennuf._internal.ml_model.supported_activations import SupportedActivations
 
 
-def from_layer(parent_ennuf_model: model.Model, layer, previous_layer_name=None) -> BaseLayer:
+def from_layer(parent_ennuf_model: model.Model, layer, input_layers_have_channels, previous_layer_name=None) -> List[BaseLayer]:
     """Takes a keras model and a keras layer and returns an equivalent ennuf layer."""
     if isinstance(layer, tf.keras.layers.Dense):
         layer: tf.keras.layers.Dense
@@ -43,42 +45,55 @@ def from_layer(parent_ennuf_model: model.Model, layer, previous_layer_name=None)
 
         input_name = input_name.split("/")[0] if previous_layer_name is None else previous_layer_name
         layer_name = layer.output.name
-        return Dense(
+        ennuf_dense_layer = Dense(
             name=layer_name,
             inputs=parent_ennuf_model.layer_dict[input_name],
             parent_model=parent_ennuf_model,
             units=layer.units,
             weights=layer.get_weights()[0],
             biases=biases,
-            activation=activation,
             use_bias=use_bias,
         )
+        if activation is None or isinstance(activation, Linear):
+            return [ennuf_dense_layer]
+        else:
+            ennuf_activation_layer = Activation(
+                name=f"{layer_name}_activation",
+                shape=layer.get_weights()[0].shape[1],
+                inputs=ennuf_dense_layer,
+                parent_model=parent_ennuf_model,
+                activation=activation,
+            )
+            return [
+                ennuf_dense_layer,
+                ennuf_activation_layer,
+            ]
     if isinstance(layer, tf.keras.layers.InputLayer):
         layer: tf.keras.layers.InputLayer
         shape = layer.batch_shape[1:]
-        return InputLayer(name=layer.output.name, shape=shape, parent_model=parent_ennuf_model)
+        return [InputLayer(name=layer.output.name, shape=shape, has_channels=input_layers_have_channels, parent_model=parent_ennuf_model)]
     if isinstance(layer, tf.keras.layers.Concatenate):
         layer: tf.keras.layers.Concatenate
         # See Dense above for description of why the weird split is needed
         input_names: List[str] = [inp.name.split("/")[0] for inp in layer.input]
         inputs: List[BaseLayer] = [parent_ennuf_model.layer_dict[name] for name in input_names]
-        return Concatenate(
+        return [Concatenate(
             name=layer.output.name,
             # the [1:] is needed to skip the None dimension Keras layers have in position 0.
             shape=layer.output.shape[1:],
             inputs=inputs,
             axis=layer.axis,
             parent_model=parent_ennuf_model,
-        )
+        )]
     if isinstance(layer, tf.keras.layers.Reshape):
         layer: tf.keras.layers.Reshape
         input_name = previous_layer_name
         if input_name is None:
             raise NotImplementedError(f"Cannot fetch name of input to reshape layer other than when provided directly.")
-        return Reshape(
+        return [Reshape(
             name=layer.output.name,
             shape=layer.target_shape,
             inputs=parent_ennuf_model.layer_dict[input_name],
             parent_model=parent_ennuf_model
-        )
+        )]
     raise NotImplementedError(f"Could not match a supported layer type to type {type(layer)}")

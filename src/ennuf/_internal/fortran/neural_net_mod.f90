@@ -51,8 +51,9 @@ CONTAINS
 
     DO c=1,channels
         DO l_out=1, length_out
+            y_out(c,l_out) = 0.0
             DO l_in=1, length_in
-                y_out(c,l_out) = x_in(c,l_in) * weights(l_out, l_in)
+                y_out(c,l_out) = y_out(c, l_out) + (x_in(c,l_in) * weights(l_out, l_in))
             END DO
             y_out(c,l_out) = y_out(c,l_out) + biases(l_out)
         END DO

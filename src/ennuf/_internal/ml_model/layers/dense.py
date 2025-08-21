@@ -3,6 +3,7 @@ import numpy as np
 
 import ennuf._internal.ml_model.model as model
 from ennuf._internal.ml_model.base_layer import BaseLayer
+from ennuf._internal.ml_model.layers.input_layer import InputLayer
 
 
 class Dense(BaseLayer):
@@ -24,7 +25,9 @@ class Dense(BaseLayer):
         self.use_bias = use_bias
         if not use_bias:
             raise NotImplementedError("Not yet implemented dense layers without bias.")
-        super().__init__(name, self.weights.shape[1], inputs, parent_model)
+        channels = inputs.shape[0]
+        l_out = self.weights.shape[1]
+        super().__init__(name, (channels, l_out), inputs, parent_model)
         self._weights_name = f"w_{self.name}"
         self._bias_name = f"b_{self.name}"
 
@@ -33,8 +36,8 @@ class Dense(BaseLayer):
         x_in = self.inputs.output_name
         y_out = self.output_name
         channels = self.inputs.shape[0]
-        l_in = self.weights.shape[1]
-        l_out = self.weights.shape[0]
+        l_in = self.weights.shape[0]
+        l_out = self.weights.shape[1]
         weights = self._weights_name
         biases = self._bias_name
         call_stmt = self.parent_model.formatter.format_line(
@@ -55,7 +58,7 @@ class Dense(BaseLayer):
 
     def get_fortran_type_declaration(self, dtype: str) -> str:
         input_shape = self.weights.shape[0]
-        output_shape = self.shape[0]
+        output_shape = self.shape[1]
         channels = self.inputs.shape[0]
         weights_typedecl = self.parent_model.formatter.format_line(
             f"REAL(KIND={dtype}) :: {self._weights_name}({output_shape}, {input_shape})"
