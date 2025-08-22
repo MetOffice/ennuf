@@ -6,7 +6,7 @@ import pytest
 from sklearn.svm import SVR
 import numpy as np
 
-from testennuf import TMPDIR
+from testennuf import TMPDIR, RANDOM_SEED
 from testennuf.kgo.template import template_test_kgo
 
 def template_test_svr(sklearn_model):
@@ -24,7 +24,7 @@ def template_test_svr(sklearn_model):
 
 def test_svr():
     sklearn_model = SVR(kernel='rbf')
-    rng = np.random.default_rng(seed=1508)
+    rng = np.random.default_rng(seed=RANDOM_SEED)
     X = np.sort(rng.random((40, 1)),
             axis=0)
     y = np.sin(X).ravel()
