@@ -10,6 +10,7 @@ def from_functional(
     keras_model: tf.keras.Model,
     name: str = "placeholder",
     long_name: str = "Auto-generated module by ENNUF",
+    input_layers_have_channels = False,
 ) -> ennufmodel.Model:
     """
     Takes a keras functional model and returns an equivalent ENNUF model.
@@ -27,6 +28,9 @@ def from_functional(
         A longer, more descriptive name of the model.
         This will only appear in comments, so any valid text to appear
         in Fortran comments is fine.
+    input_layers_have_channels
+        Whether the inputs to the model are assumed to have the first dimension be a channels dimension (common in CNNs).
+        Defaults to false.
     Returns
     -------
     Returns
@@ -37,39 +41,40 @@ def from_functional(
         ways of representing in Fortran. The model
         will have methods on it which can be used to write a Fortran module based on it.
     """
-    keras_model_output_names = {output.name for output in keras_model.outputs}
-    if isinstance(keras_model.output, dict):
-        if set(keras_model.output_names) != set(keras_model.output.keys()):
-            # TODO: handle this in KGO testing somehow
-            raise NotImplementedError(
-                "Currently you must name your model outputs the same name as the layers they are connected to. "
-                "This only matters for automated KGO testing and should not impact functionality "
-                "if no fix was implemented."
-            )
-
     dtype = keras_model.variable_dtype
     model = ennufmodel.Model(
         name=name,
         long_name=long_name,
-        output_names=keras_model.output_names,
+        output_names=[""],
         dtype=dtype,
     )
     for layer in keras_model.layers:
-        model.layers.append(from_layer(parent_ennuf_model=model, layer=layer))
-    # rename the final layers to agree with keras_model.output_names
-    # by using the fact that keras_model.output can be a dict whose
-    # keys are the user-specified output names and whose values are
-    # we can do val.name to get the name that will have been assigned
-    # already
-    if isinstance(keras_model.output, dict):
-        for user_output_name, output in keras_model.output.items():
-            model.layer_dict[output.name].name = user_output_name
-            # and then change any references to the old name in previous layers
-            # to the new name
-            # for layer in model.layers:
-            #     if output.name == layer.output_name:
-            #         layer.name = user_output_name
-    elif hasattr(keras_model.output, "name"):
-        # then we should have only one output
-        model.layer_dict[keras_model.output.name].name = keras_model.output_names[0]
+        previous_layer_name = None
+        if hasattr(layer, "input"):
+            if hasattr(layer.input, "name"):
+                keras_input_name = layer.input.name
+                previous_layer_name = keras_input_name
+                for potential_previous_layer in keras_model.layers:
+                    if potential_previous_layer.output.name == keras_input_name and hasattr(potential_previous_layer, "activation"):
+                        if not (potential_previous_layer.activation is tf.keras.activations.linear):
+                            previous_layer_name = f"{keras_input_name}_activation"
+        ennuf_layers = from_layer(parent_ennuf_model=model, layer=layer, input_layers_have_channels=input_layers_have_channels, previous_layer_name=previous_layer_name)
+        for ennuf_layer in ennuf_layers:
+            model.layers.append(ennuf_layer)
+    output_names = []
+    for layer in model.layers:
+        layer_is_output = True
+        for possibly_next_layer in model.layers:
+            if possibly_next_layer.inputs is not None:
+                if isinstance(possibly_next_layer.inputs, list):
+                    if layer in possibly_next_layer.inputs:
+                        layer_is_output = False
+                        continue
+                else:
+                    if layer == possibly_next_layer.inputs:
+                        layer_is_output = False
+                        continue
+        if layer_is_output:
+            output_names.append(layer.output_name.strip("y_"))
+    model.output_names = output_names
     return model

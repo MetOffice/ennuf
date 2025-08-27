@@ -2,10 +2,8 @@
 import numpy as np
 
 import ennuf._internal.ml_model.model as model
-from ennuf._internal.ml_model.base_activation import BaseActivation
-from ennuf._internal.ml_model.activations.leaky_relu import LeakyRelu
-from ennuf._internal.ml_model.activations.linear import Linear
 from ennuf._internal.ml_model.base_layer import BaseLayer
+from ennuf._internal.ml_model.layers.input_layer import InputLayer
 
 
 class Dense(BaseLayer):
@@ -19,19 +17,17 @@ class Dense(BaseLayer):
         units: int,
         weights: np.ndarray,
         biases: np.ndarray,
-        activation: BaseActivation = None,
         use_bias: bool = True,
     ):
         self.units = units
         self.weights = weights
         self.biases = biases
-        self.activation = activation
-        if activation is None:
-            self.activation = Linear()
         self.use_bias = use_bias
         if not use_bias:
             raise NotImplementedError("Not yet implemented dense layers without bias.")
-        super().__init__(name, self.weights.shape[1], inputs, parent_model)
+        channels = inputs.shape[0]
+        l_out = self.weights.shape[1]
+        super().__init__(name, (channels, l_out), inputs, parent_model)
         self._weights_name = f"w_{self.name}"
         self._bias_name = f"b_{self.name}"
 
@@ -39,17 +35,13 @@ class Dense(BaseLayer):
         subroutine_name = self.fortran_id()
         x_in = self.inputs.output_name
         y_out = self.output_name
-        n_in = self.weights.shape[0]
-        n_out = self.weights.shape[1]
+        channels = self.inputs.shape[0]
+        l_in = self.weights.shape[0]
+        l_out = self.weights.shape[1]
         weights = self._weights_name
         biases = self._bias_name
-        activation_id = self.activation.fortran_id()
-        try:
-            alpha = self.activation.alpha
-        except AttributeError:
-            alpha = 0.0
         call_stmt = self.parent_model.formatter.format_line(
-            f"CALL {subroutine_name}({x_in}, {y_out}, {n_in}, {n_out}, {weights}, {biases}, {activation_id}, {alpha})"
+            f"CALL {subroutine_name}({x_in}, {y_out}, {channels}, {l_in}, {l_out}, {weights}, {biases})"
         )
         return call_stmt
 
@@ -60,26 +52,26 @@ class Dense(BaseLayer):
     def __str__(self):
         return (
             f'Dense layer "{self.name}" with size {self.units},'
-            f' activation "{str(self.activation)}"'
             f' {"with" if self.use_bias else "without"} bias'
             f' and inputs "{self.inputs.name}"'
         )
 
     def get_fortran_type_declaration(self, dtype: str) -> str:
         input_shape = self.weights.shape[0]
-        output_shape = self.shape[0]
+        output_shape = self.shape[1]
+        channels = self.inputs.shape[0]
         weights_typedecl = self.parent_model.formatter.format_line(
-            f"REAL(KIND={dtype}) :: {self._weights_name}({input_shape}, {output_shape})"
+            f"REAL(KIND={dtype}) :: {self._weights_name}({output_shape}, {input_shape})"
         )
         bias_typedecl = self.parent_model.formatter.format_line(
             f"REAL(KIND={dtype}) :: {self._bias_name}({output_shape})"
         )
         output_typedecl = self.parent_model.formatter.format_line(
-            f"REAL(KIND={dtype}) :: {self.output_name}({output_shape})"
+            f"REAL(KIND={dtype}) :: {self.output_name}({channels},{output_shape})"
         )
         return f"{weights_typedecl}{bias_typedecl}{output_typedecl}\n"
 
     def get_fortran_data_initialisation(self) -> str:
         bias_init = self.parent_model.formatter.format_data_statement(varname=self._bias_name, data=self.biases)
-        weights_inits = self.parent_model.formatter.format_data_statement(varname=self._weights_name, data=self.weights)
+        weights_inits = self.parent_model.formatter.format_data_statement(varname=self._weights_name, data=self.weights.T)
         return f"{bias_init}\n{weights_inits}"

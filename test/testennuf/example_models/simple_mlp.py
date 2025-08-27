@@ -97,6 +97,25 @@ class SimpleMLP:
         stddev = tf.keras.layers.Dense(7, activation="relu", name="stddevs")(y)
         covariances = tf.keras.layers.Dense(6, name="covariances")(z)
         return tf.keras.models.Model(inputs=inputs, outputs={"stddevs": stddev, "covariances": covariances})
+    @staticmethod
+    def build_covariance_predictor_separate_outputs_small(alpha=0.05):
+        """Functional API model, entirely dense"""
+        # Input reshaping
+        inputs = tf.keras.Input(shape=(3,), name="inputs")
+        activation = tf.keras.layers.LeakyReLU(alpha=alpha)
+        nnodes = 5
+        reg = None
+        y = tf.keras.layers.Dense(nnodes, activation=activation, kernel_regularizer=reg, name="dense1")(inputs)
+        y = tf.keras.layers.Dense(nnodes, activation=activation, kernel_regularizer=reg, name="dense2")(y)
+        y = tf.keras.layers.Dense(nnodes, activation=activation, kernel_regularizer=reg, name="dense3")(y)
+
+        z = tf.keras.layers.Dense(nnodes, activation=activation, kernel_regularizer=reg, name="covdense1")(inputs)
+        z = tf.keras.layers.Dense(nnodes, activation=activation, kernel_regularizer=reg, name="covdense2")(z)
+        z = tf.keras.layers.Dense(nnodes, activation=activation, kernel_regularizer=reg, name="covdense3")(z)
+
+        stddev = tf.keras.layers.Dense(3, activation="relu", name="stddevs")(y)
+        covariances = tf.keras.layers.Dense(7, name="covariances")(z)
+        return tf.keras.models.Model(inputs=inputs, outputs={"stddevs": stddev, "covariances": covariances})
 
     @staticmethod
     def build_covariance_predictor_separate_outputs(alpha=0.05):
