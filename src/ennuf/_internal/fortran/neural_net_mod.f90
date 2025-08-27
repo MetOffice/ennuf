@@ -131,6 +131,16 @@ CONTAINS
         CALL EXIT(1)
     END IF
 
+    IF (pad_mode == "none   ") THEN
+       IF (padding/=0) THEN
+          PRINT*, "ERROR: "
+          PRINT*, "padding mode selected is 'none   ' but the value of padding given is not 0"
+          PRINT*, "the conv1d layer will assume NO padding,"
+          PRINT*, "if this is not what you intended, change the padding mode"
+          PRINT*, "options available are: 'zeros  ' and 'reflect'"
+       END IF
+    END IF
+
     length_inter = length_in + 2 * padding   
     ALLOCATE(inter(channels_in, length_inter))
    
@@ -150,13 +160,14 @@ CONTAINS
 	        END DO
 	END SELECT
 
-
+    y_out = 0.0
+ 
     DO c_out=1, channels_out
         DO c_in=1, channels_in
             s=0
             DO l_out=1, length_out
                 DO l_k=1, size_kernel
-                    y_out(c_out,l_out) = y_out(c_out,l_out) + weights(c_out,c_in,l_k) * inter(c_in, s+(l_k*dilation)-1)
+                    y_out(c_out,l_out) = y_out(c_out,l_out) + weights(c_out,c_in,l_k) * inter(c_in, s+((l_k-1)*dilation)+1)
                 END DO
             s = s + stride
             END DO
@@ -233,7 +244,8 @@ CONTAINS
 
     length_inter = length_in + 2 * padding   
     ALLOCATE(inter(channels, length_inter))
-   
+
+    y_out=0.0
     
     SELECT CASE (choice_of_pooling)
 
