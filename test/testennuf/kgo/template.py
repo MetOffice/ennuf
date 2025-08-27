@@ -1,5 +1,6 @@
 #  (C) Crown Copyright, Met Office, 2023.
 import subprocess
+import sys
 from pathlib import Path
 from typing import Callable
 
@@ -91,22 +92,45 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable, model_ty
     if isinstance(kgo, dict):
         for key in kgo:
             kgo_data: np.ndarray = kgo[key].squeeze()
-            out_data: np.ndarray = hopefully_good_output[key].squeeze()
-            if kgo_data.shape != out_data.shape:
-                print(f"kgo shape: {kgo_data.shape}, out shape: {out_data.shape}")
-            assert kgo_data.shape == out_data.shape
-            if not np.isclose(kgo_data, out_data, atol=atol).all():
-                for i, kgo_datum in enumerate(kgo_data):
-                    out_datum = out_data[i]
-                    # print(f'kgo: [{kgo_datum}], out: [{out_data[i]}]')
-                    diff = np.abs(kgo_datum - out_datum)
-                    print(f"diff: [{diff}], reldiff: [{np.abs(diff / kgo_datum)}]")
-            print(f"{kgo_data=}\n {out_data=}")
-            print(f"{kgo_data.shape=}, {out_data.shape=}")
-            assert np.isclose(kgo_data, out_data, atol=atol).all()
+            possible_keys = []
+            out_data = None
+            if key in hopefully_good_output:
+                out_data = hopefully_good_output[key].squeeze()
+            else:
+                # keys are different between fortran and python, need to search
+                for out_key, possibly_matching_out_data in hopefully_good_output.items():
+                    if possibly_matching_out_data.squeeze().shape == kgo_data.shape:
+                        possible_keys.append(out_key)
+                if len(possible_keys) == 0:
+                    print(f"{kgo_data.shape=} matched none of the following: {[{a_tuple[0]: a_tuple[1].squeeze().shape} for a_tuple in hopefully_good_output.items()]}", file=sys.stderr)
+                    raise AssertionError("no outputs of hopefully good output matched shape of kgo data")
+                for possible_key in possible_keys:
+                    try:
+                        out_data = hopefully_good_output[possible_key].squeeze()
+                        compare_data(atol, kgo_data, out_data)
+                    except AssertionError:
+                        out_data = None
+                        continue
+                assert out_data is not None  # if test fails here, no data matched
+            compare_data(atol, kgo_data, out_data)
     else:
         assert len(hopefully_good_output.keys()) == 1
         for key in hopefully_good_output:
             print(f"{kgo=}\n {hopefully_good_output[key]=}")
             print(kgo.shape, hopefully_good_output[key].shape)
             assert np.isclose(kgo, hopefully_good_output[key], atol=atol, rtol=rtol).all()
+
+
+def compare_data(atol, kgo_data, out_data):
+    if kgo_data.shape != out_data.shape:
+        print(f"kgo shape: {kgo_data.shape}, out shape: {out_data.shape}")
+    assert kgo_data.shape == out_data.shape
+    if not np.isclose(kgo_data, out_data, atol=atol).all():
+        for i, kgo_datum in enumerate(kgo_data):
+            out_datum = out_data[i]
+            # print(f'kgo: [{kgo_datum}], out: [{out_data[i]}]')
+            diff = np.abs(kgo_datum - out_datum)
+            print(f"diff: [{diff}], reldiff: [{np.abs(diff / kgo_datum)}]")
+    print(f"{kgo_data=}\n {out_data=}")
+    print(f"{kgo_data.shape=}, {out_data.shape=}")
+    assert np.isclose(kgo_data, out_data, atol=atol).all()

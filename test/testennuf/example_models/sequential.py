@@ -17,8 +17,10 @@ class SequentialExamples:
         model.add(tf.keras.Input(shape=(4,)))
         model.add(tf.keras.layers.Dense(8))
         model.add(tf.keras.layers.ReLU())
-        model.add(tf.keras.layers.Dense(8))
-        model.add(tf.keras.layers.ReLU())
+        model.add(tf.keras.layers.Dense(5))
+        model.add(tf.keras.layers.Activation("tanh"))
+        model.add(tf.keras.layers.Dense(4))
+        model.add(tf.keras.layers.Activation("sigmoid"))
         model.add(tf.keras.layers.Dense(2))
         return model
 

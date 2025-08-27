@@ -13,9 +13,14 @@ from ennuf._internal.ml_model.layers.reshape import Reshape
 from ennuf._internal.ml_model.layers.input_layer import InputLayer
 import ennuf._internal.ml_model.model as model
 from ennuf._internal.ml_model.supported_activations import SupportedActivations
+from ennuf._internal.ml_model.activations.relu import Relu
+from ennuf._internal.ml_model.activations.leaky_relu import LeakyRelu
+from ennuf._internal.ml_model.activations.tanh import Tanh
+from ennuf._internal.ml_model.activations.sigmoid import Sigmoid
 
 
-def from_layer(parent_ennuf_model: model.Model, layer, input_layers_have_channels, previous_layer_name=None) -> List[BaseLayer]:
+def from_layer(parent_ennuf_model: model.Model, layer, input_layers_have_channels, previous_layer_name=None) -> List[
+    BaseLayer]:
     """Takes a keras model and a keras layer and returns an equivalent ennuf layer."""
     if isinstance(layer, tf.keras.layers.Dense):
         layer: tf.keras.layers.Dense
@@ -71,7 +76,8 @@ def from_layer(parent_ennuf_model: model.Model, layer, input_layers_have_channel
     if isinstance(layer, tf.keras.layers.InputLayer):
         layer: tf.keras.layers.InputLayer
         shape = layer.batch_shape[1:]
-        return [InputLayer(name=layer.output.name, shape=shape, has_channels=input_layers_have_channels, parent_model=parent_ennuf_model)]
+        return [InputLayer(name=layer.output.name, shape=shape, has_channels=input_layers_have_channels,
+                           parent_model=parent_ennuf_model)]
     if isinstance(layer, tf.keras.layers.Concatenate):
         layer: tf.keras.layers.Concatenate
         # See Dense above for description of why the weird split is needed
@@ -95,5 +101,38 @@ def from_layer(parent_ennuf_model: model.Model, layer, input_layers_have_channel
             shape=layer.target_shape,
             inputs=parent_ennuf_model.layer_dict[input_name],
             parent_model=parent_ennuf_model
+        )]
+    if isinstance(layer, tf.keras.layers.ReLU):
+        input_name = layer.input.name if previous_layer_name is None else previous_layer_name
+        if hasattr(layer, "negative_slope") and layer.negative_slope != 0.0:
+            return [Activation(
+                name=layer.output.name,
+                shape=layer.output.shape[1:],
+                inputs=parent_ennuf_model.layer_dict[input_name],
+                parent_model=parent_ennuf_model,
+                activation=LeakyRelu(layer.negative_slope),
+            )]
+        return [Activation(
+            name=layer.output.name,
+            shape=layer.output.shape[1:],
+            inputs=parent_ennuf_model.layer_dict[input_name],
+            parent_model=parent_ennuf_model,
+            activation=Relu(),
+        )]
+    if isinstance(layer, tf.keras.layers.Activation):
+        input_name = layer.input.name if previous_layer_name is None else previous_layer_name
+        kas_activation = tf.keras.activations.serialize(layer)["config"]["activation"]
+        if isinstance(kas_activation, str):
+            activation = SupportedActivations.from_identifier(kas_activation)
+        elif isinstance(kas_activation, Dict):
+            activation = SupportedActivations.from_serialized_dict(kas_activation)
+        else:
+            activation = None
+        return [Activation(
+            name=layer.output.name,
+            shape=layer.output.shape[1:],
+            inputs=parent_ennuf_model.layer_dict[input_name],
+            parent_model=parent_ennuf_model,
+            activation=activation,
         )]
     raise NotImplementedError(f"Could not match a supported layer type to type {type(layer)}")
