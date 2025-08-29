@@ -192,7 +192,7 @@ CONTAINS
     ! type and scale of pooling
     choice_of_pooling, &
     pool_size, &
-    ! padding, stride, dilation
+    ! padding, stride
     padding, &
     stride)
 
