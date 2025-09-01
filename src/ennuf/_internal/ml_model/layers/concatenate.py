@@ -6,6 +6,7 @@ from ennuf._internal.ml_model.base_layer import BaseLayer
 
 
 class Concatenate(BaseLayer):
+    """ENNUF representation of a concatenate layer"""
     def __init__(
         self,
         name: str,
