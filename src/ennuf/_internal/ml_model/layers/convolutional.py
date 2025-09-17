@@ -1,4 +1,6 @@
 #  (C) Crown Copyright, Met Office, 2023.
+from enum import Enum
+
 import numpy as np
 
 import ennuf._internal.ml_model.model as model
@@ -6,22 +8,49 @@ from ennuf._internal.ml_model.base_layer import BaseLayer
 from ennuf._internal.ml_model.layers.input_layer import InputLayer
 
 
-class Conv_1d(BaseLayer):
+class PaddingMode(Enum):
+    NONE = "none   "
+    ZEROS = "zeros  "
+    REFLECT = "reflect"
+
+    @classmethod
+    def from_keras_padding_mode(cls, keras_padding_mode):
+        match keras_padding_mode:
+            case "valid":
+                return PaddingMode.NONE
+            case "same":
+                return PaddingMode.ZEROS
+            case _:
+                raise NotImplementedError(f"Unsupported padding mode: {keras_padding_mode}")
+
+    @classmethod
+    def from_torch_padding_mode(cls, torch_padding_mode):
+        match torch_padding_mode:
+            case "valid":
+                return PaddingMode.NONE
+            case "same":
+                return PaddingMode.ZEROS
+            case _:
+                raise NotImplementedError(f"Unsupported padding mode: {torch_padding_mode}")
+
+
+class Conv1d(BaseLayer):
     """ENNUF representation of a 1d convolutional layer"""
+
     def __init__(
-        self,
-        name: str,
-        inputs: BaseLayer,
-        parent_model: model.Model,
-        weights: np.ndarray,
-        biases: np.ndarray,
-        padding_mode: str,
-        padding: int,
-        stride: int,
-        dilation: int,
-        use_bias: bool = True,
+            self,
+            name: str,
+            inputs: BaseLayer,
+            parent_model: model.Model,
+            weights: np.ndarray,
+            biases: np.ndarray,
+            padding_mode: PaddingMode,
+            padding: int,
+            stride: int,
+            dilation: int,
+            use_bias: bool = True,
     ):
-        self.pad_mode =padding_mode
+        self.pad_mode = padding_mode
         self.padding = padding
         self.stride = stride
         self.dilation = dilation
@@ -30,9 +59,13 @@ class Conv_1d(BaseLayer):
         self.use_bias = use_bias
         if not use_bias:
             raise NotImplementedError("Not yet implemented convolutional layers without bias.")
-        kernel_size = self.weights.shape[2]
+        self.kernel_size = self.weights.shape[2]
         c_out = self.weights.shape[0]
-        l_out = 1 + ( ( l_in + 2 * self.padding - self.dilation * (kernel_size - 1) - 1) / self.stride )
+        l_in = inputs.shape[1]
+        if (self.dilation * (self.kernel_size - 1) - 1) % self.stride != 0:
+            raise ValueError(
+                f"Cannot integer divide by stride: {(self.dilation * (self.kernel_size - 1) - 1)=} and {self.stride=}.\n Modulus should be zero but is: {(self.dilation * (self.kernel_size - 1) - 1) % self.stride != 0}")
+        l_out = int(1 + ((l_in + 2 * self.padding - self.dilation * (self.kernel_size - 1) - 1) / self.stride))
         super().__init__(name, (c_out, l_out), inputs, parent_model)
         self._weights_name = f"w_{self.name}"
         self._bias_name = f"b_{self.name}"
@@ -46,7 +79,7 @@ class Conv_1d(BaseLayer):
         c_out = self.weights.shape[0]
         l_out = self.shape[1]
         k_size = self.weights.shape[2]
-        pad_mode = f"'{self.pad_mode}'"    
+        pad_mode = f"'{self.pad_mode.value}'"
         padding = self.padding
         stride = self.stride
         dilation = self.dilation
@@ -68,7 +101,7 @@ class Conv_1d(BaseLayer):
             f' and inputs "{self.inputs.name}"'
         )
 
-   def get_fortran_type_declaration(self, dtype: str) -> str:
+    def get_fortran_type_declaration(self, dtype: str) -> str:
         channels_out = self.weights.shape[0]
         channels_in = self.weights.shape[1]
         kernel_size = self.weights.shape[2]
@@ -86,5 +119,5 @@ class Conv_1d(BaseLayer):
 
     def get_fortran_data_initialisation(self) -> str:
         bias_init = self.parent_model.formatter.format_data_statement(varname=self._bias_name, data=self.biases)
-        weights_inits = self.parent_model.formatter.format_data_statement(varname=self._weights_name, data=self.weights)
-        return f"{bias_init}\n{weights_inits}"
+        weights_init = self.parent_model.formatter.format_data_statement(varname=self._weights_name, data=self.weights)
+        return f"{bias_init}\n{weights_init}"

@@ -16,7 +16,7 @@ from ennuf._internal.ml_model.activations.linear import Linear
 
 def from_sequential(
         pytorch_model: torch.nn.Module,
-        input_shape: tuple[int],
+        input_shape: tuple[int, ...],
         name: str = "placeholder",
         long_name: str = "Auto-generated module by ENNUF",
         input_layers_have_channels: bool = False,
@@ -73,7 +73,7 @@ def from_sequential(
                 name=layer_name,
                 inputs=ennuf_model.layer_dict[input_name],
                 parent_model=ennuf_model,
-                units=layer.weight.shape[0],
+                shape=layer.weight.shape[0],
                 weights=layer.weight.detach().numpy().T,
                 biases=biases,
                 use_bias=use_bias,

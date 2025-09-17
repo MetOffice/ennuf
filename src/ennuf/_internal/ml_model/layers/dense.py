@@ -1,4 +1,6 @@
 #  (C) Crown Copyright, Met Office, 2023.
+from typing import Tuple
+
 import numpy as np
 
 import ennuf._internal.ml_model.model as model
@@ -14,20 +16,26 @@ class Dense(BaseLayer):
         name: str,
         inputs: BaseLayer,
         parent_model: model.Model,
-        units: int,
+        shape: int | Tuple[int, ...],
         weights: np.ndarray,
         biases: np.ndarray,
         use_bias: bool = True,
     ):
-        self.units = units
+        if isinstance(shape, tuple) and len(shape) == 2:
+            shape_with_channels = shape
+        elif isinstance(shape, tuple) and len(shape) == 1:
+            shape_with_channels = (1, shape[0])
+        elif isinstance(shape, int):
+            shape_with_channels = (1, shape)
+        else:
+            raise ValueError(f"Dense layer cannot have more than two dimensions, {shape=} requested")
+        self.units = shape_with_channels[1]
         self.weights = weights
         self.biases = biases
         self.use_bias = use_bias
         if not use_bias:
             raise NotImplementedError("Not yet implemented dense layers without bias.")
-        channels = inputs.shape[0]
-        l_out = self.weights.shape[1]
-        super().__init__(name, (channels, l_out), inputs, parent_model)
+        super().__init__(name, shape_with_channels, inputs, parent_model)
         self._weights_name = f"w_{self.name}"
         self._bias_name = f"b_{self.name}"
 
@@ -35,7 +43,7 @@ class Dense(BaseLayer):
         subroutine_name = self.fortran_id()
         x_in = self.inputs.output_name
         y_out = self.output_name
-        channels = self.inputs.shape[0]
+        channels = self.shape[0]
         l_in = self.weights.shape[0]
         l_out = self.weights.shape[1]
         weights = self._weights_name
@@ -59,7 +67,7 @@ class Dense(BaseLayer):
     def get_fortran_type_declaration(self, dtype: str) -> str:
         input_shape = self.weights.shape[0]
         output_shape = self.shape[1]
-        channels = self.inputs.shape[0]
+        channels = self.shape[0]
         weights_typedecl = self.parent_model.formatter.format_line(
             f"REAL(KIND={dtype}) :: {self._weights_name}({output_shape}, {input_shape})"
         )

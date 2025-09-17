@@ -10,7 +10,7 @@ def from_functional(
     keras_model: tf.keras.Model,
     name: str = "placeholder",
     long_name: str = "Auto-generated module by ENNUF",
-    input_layers_have_channels = False,
+    input_layer_channels = "first",
 ) -> ennufmodel.Model:
     """
     Takes a keras functional model and returns an equivalent ENNUF model.
@@ -28,9 +28,9 @@ def from_functional(
         A longer, more descriptive name of the model.
         This will only appear in comments, so any valid text to appear
         in Fortran comments is fine.
-    input_layers_have_channels
-        Whether the inputs to the model are assumed to have the first dimension be a channels dimension (common in CNNs).
-        Defaults to false.
+    input_layer_channels
+        Whether the inputs to the model are assumed to have a dimension be a channels dimension (common in CNNs).
+        Defaults to first.
     Returns
     -------
     Returns
@@ -48,6 +48,7 @@ def from_functional(
         output_names=[""],
         dtype=dtype,
     )
+    layer_mapping = {}
     for layer in keras_model.layers:
         previous_layer_name = None
         if hasattr(layer, "input"):
@@ -55,10 +56,10 @@ def from_functional(
                 keras_input_name = layer.input.name
                 previous_layer_name = keras_input_name
                 for potential_previous_layer in keras_model.layers:
-                    if potential_previous_layer.output.name == keras_input_name and hasattr(potential_previous_layer, "activation"):
-                        if not (potential_previous_layer.activation is tf.keras.activations.linear):
-                            previous_layer_name = f"{keras_input_name}_activation"
-        ennuf_layers = from_layer(parent_ennuf_model=model, layer=layer, input_layers_have_channels=input_layers_have_channels, previous_layer_name=previous_layer_name)
+                    if potential_previous_layer.output.name == keras_input_name:
+                        previous_layer_name = layer_mapping[keras_input_name].name
+        ennuf_layers = from_layer(parent_ennuf_model=model, layer=layer, input_layer_channels=input_layer_channels, previous_layer_name=previous_layer_name)
+        layer_mapping[layer.output.name] = ennuf_layers[-1]
         for ennuf_layer in ennuf_layers:
             model.layers.append(ennuf_layer)
     output_names = []

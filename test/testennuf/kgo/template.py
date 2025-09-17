@@ -12,7 +12,7 @@ from testennuf import RANDOM_SEED
 from testennuf.kgo.test_kgo_program_writer import KGOProgramWriterTester
 
 
-def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable, model_type: str, atol=1.0e-7, rtol=1.0e-4):
+def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable, model_type: str, atol=1.0e-7, rtol=1.0e-4, testing_convolution=False, original_model=None):
     from ennuf.formatters import MinimalistFormatter
 
     model.formatter = MinimalistFormatter()
@@ -82,11 +82,14 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable, model_ty
     for output_layer in model.outputs:
         name = output_layer.name
         shape = output_layer.shape
-        output_data = np.fromfile(dir_.joinpath(f"out_{name}.dat"), dtype=np.float32, count=np.product(shape))
+        output_data = np.fromfile(dir_.joinpath(f"out_{name}.dat"), dtype=np.float32, count=np.prod(shape))
         output_data = output_data.reshape(shape, order="F")
         hopefully_good_output[name] = output_data
     if model_type=="pytorch":
         kgo = kgo_fn(torch.from_numpy(input_data)).detach().numpy()
+    elif testing_convolution:
+        # kgo = kgo_fn({k: v.T.squeeze()[None] for k, v in input_data.items()}) # .T.squeeze()[None] is a temp fix for convolution testing
+        kgo = kgo_fn(input_data)
     else:
         kgo = kgo_fn(input_data)
     if isinstance(kgo, dict):
@@ -117,8 +120,9 @@ def template_test_kgo(model: ennuf.Model, dir_: Path, kgo_fn: Callable, model_ty
         assert len(hopefully_good_output.keys()) == 1
         for key in hopefully_good_output:
             print(f"{kgo=}\n {hopefully_good_output[key]=}")
-            print(kgo.shape, hopefully_good_output[key].shape)
-            assert np.isclose(kgo, hopefully_good_output[key], atol=atol, rtol=rtol).all()
+            print(kgo.squeeze().shape, hopefully_good_output[key].squeeze().shape)
+            assert kgo.squeeze().shape == hopefully_good_output[key].squeeze().shape
+            assert np.isclose(kgo.squeeze(), hopefully_good_output[key].squeeze(), atol=atol, rtol=rtol).all()
 
 
 def compare_data(atol, kgo_data, out_data):
