@@ -6,9 +6,22 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class PytorchConvolutional:
     @staticmethod
+    def only_flatten():
+        model = nn.Sequential(
+            nn.Flatten(0),
+        )
+        return model.to(device)
+
+    @staticmethod
     def build_only_conv():
         model = nn.Sequential(
-            nn.Conv1d(3,4,kernel_size=3,padding=1),
+            nn.Conv1d(3,5,kernel_size=3,padding=0),
+        )
+        return model.to(device)
+    @staticmethod
+    def build_only_conv_no_bias():
+        model = nn.Sequential(
+            nn.Conv1d(3,4,kernel_size=3,padding=1, bias=False),
         )
         return model.to(device)
 
@@ -16,11 +29,11 @@ class PytorchConvolutional:
     def build_simple_conv():
         """Simple 1D ConvNet with one conv and pooling layer"""
         model = nn.Sequential(
-            nn.Conv1d(3, 16, kernel_size=3, padding=1),
+            nn.Conv1d(3, 2, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.MaxPool1d(2),
-            nn.Flatten(),
-            nn.Linear(16 * 64, 10)  # input length 128 -> pooled to 64
+            nn.Flatten(0),
+            nn.Linear(4, 5)
         )
         return model.to(device)
 
@@ -36,9 +49,9 @@ class PytorchConvolutional:
             nn.MaxPool1d(2),  # 128 -> 64
             nn.Conv1d(64, 128, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.AdaptiveAvgPool1d(1),
-            nn.Flatten(),
-            nn.Linear(128, 5)
+            nn.AvgPool1d(1),
+            nn.Flatten(0),
+            nn.Linear(1024, 5)
         )
         return model.to(device)
 
@@ -57,27 +70,3 @@ class PytorchConvolutional:
             nn.Linear(64, 2)
         )
         return model.to(device)
-
-    @staticmethod
-    def build_conv_multi_output():
-        """1D ConvNet with multiple outputs (returns a custom nn.Module)"""
-        class MultiOutputNet(nn.Module):
-            def __init__(self):
-                super().__init__()
-                self.conv = nn.Conv1d(3, 16, kernel_size=3, padding=1)
-                self.relu = nn.ReLU()
-                self.pool = nn.MaxPool1d(2)  # 128 -> 64
-                self.flatten = nn.Flatten()
-                self.fc_class = nn.Linear(16 * 64, 4)
-                self.fc_score = nn.Linear(16 * 64, 1)
-
-            def forward(self, x):
-                x = self.conv(x)
-                x = self.relu(x)
-                x = self.pool(x)
-                x = self.flatten(x)
-                out1 = self.fc_class(x)
-                out2 = torch.sigmoid(self.fc_score(x))
-                return {"class_output": out1, "score_output": out2}
-
-        return MultiOutputNet().to(device)

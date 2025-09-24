@@ -310,5 +310,6 @@ def _compute_same_padding(input_length, kernel_size, stride):
     pad_left = padding // 2
     pad_right = padding - pad_left
     if pad_left != pad_right:
-        raise NotImplementedError(f"padding only supported if equal on all sides, but got {pad_left=}, {pad_right=}")
+        raise NotImplementedError(f"padding only supported if equal on all sides, but got {pad_left=}, {pad_right=}\n"
+                                  f"Other info: {output_length=}, {stride=}, {kernel_size=}, {input_length=}")
     return pad_left

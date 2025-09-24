@@ -1,10 +1,11 @@
 # python
 import tensorflow as tf
 
+
 class KerasConvolutional:
     @staticmethod
     def only_flatten():
-        inputs = tf.keras.Input(shape=(3,2,4), name="inputs")
+        inputs = tf.keras.Input(shape=(3, 2, 4), name="inputs")
         outputs = tf.keras.layers.Flatten()(inputs)
         return tf.keras.Model(inputs=inputs, outputs=outputs)
 
@@ -14,7 +15,13 @@ class KerasConvolutional:
         x = tf.keras.layers.Conv1D(2, 3, activation=None, padding="same")(inputs)
         x = tf.keras.layers.Conv1D(2, 3, activation=None, padding="same")(x)
         x = tf.keras.layers.Flatten()(x)
+        return tf.keras.Model(inputs=inputs, outputs=x)
 
+    @staticmethod
+    def build_only_conv_no_bias():
+        inputs = tf.keras.Input(shape=(4, 2), name="inputs")
+        x = tf.keras.layers.Conv1D(2, 3, activation=None, padding="same", use_bias=False)(inputs)
+        x = tf.keras.layers.Flatten()(x)
         return tf.keras.Model(inputs=inputs, outputs=x)
 
     @staticmethod
@@ -48,7 +55,7 @@ class KerasConvolutional:
         x = tf.keras.layers.Conv1D(128, 3, activation="relu", padding="same")(x)
         # x = tf.keras.layers.AvgPool1D(pool_size=3, padding="same")(x)
         x = tf.keras.layers.Flatten()(x)
-        outputs = tf.keras.layers.Dense(5, activation="sigmoid")(x)
+        outputs = tf.keras.layers.Dense(5, activation="softmax")(x)
         return tf.keras.Model(inputs=inputs, outputs=outputs)
 
     @staticmethod

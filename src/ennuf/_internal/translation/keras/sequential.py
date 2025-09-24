@@ -24,8 +24,10 @@ def from_sequential(
                          f"got {len(keras_model.inputs)}: ({keras_model.inputs})")
     input_layer = keras_model.inputs[0]
     input_layer_shape = input_layer.shape[1:]  # strips leading None
-    if input_layer_channels == "last" and len(input_layer_shape) > 1:
-        input_layer_shape = (input_layer_shape[-1],) + input_layer_shape[:-1]
+    if input_layer_channels not in ["last", "first", None]:
+        raise ValueError(f"input layer channels must be first last or none, got {input_layer_channels}")
+    # if input_layer_channels == "last" and len(input_layer_shape) > 1:
+    #     input_layer_shape = (input_layer_shape[-1],) + input_layer_shape[:-1]
     has_channels = False if input_layer_channels is None else True
     model.layers.append(InputLayer(name=input_layer.name, has_channels=has_channels, shape=input_layer_shape, parent_model=model))
     for layer in keras_model.layers:

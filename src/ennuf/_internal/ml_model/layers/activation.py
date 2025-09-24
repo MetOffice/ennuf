@@ -44,7 +44,7 @@ class Activation(BaseLayer):
         x_in = self.inputs.output_name
         y_out = self.output_name
         channels = self.shape[0]
-        length = self.inputs.shape[1]
+        length = self.shape[1]
         activation_id = self.activation.fortran_id() 
         if hasattr(self.activation, "alpha"):
             alpha = self.activation.alpha

@@ -29,7 +29,9 @@ class Pooling1d(BaseLayer):
         channels = inputs.shape[0]
         l_in = inputs.shape[1]
         if (l_in + 2 * self.padding - self.pool_size) % self.stride != 0:
-            raise ValueError(f"Cannot integer divide by stride: {(l_in + 2 * self.padding - self.pool_size)=} and {self.stride=}.\n Modulus should be zero but is: {(l_in + 2 * self.padding - self.pool_size) % self.stride}")
+            raise ValueError(f"Cannot integer divide by stride: {l_in=}, {self.padding=}, {self.pool_size=},\n"
+                             f"{self.stride=}, {(l_in + 2 * self.padding - self.pool_size)=} and {self.stride=}.\n"
+                             f" Modulus should be zero but is: {(l_in + 2 * self.padding - self.pool_size) % self.stride}")
         l_out = int(1 + (l_in + 2 * self.padding - self.pool_size) / self.stride)
         super().__init__(name, (channels, l_out), inputs, parent_model)
 

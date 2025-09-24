@@ -16,7 +16,10 @@ def from_svr(
     name: str="placeholder",
     long_name: str = "Auto-generated module by ENNUF",
     formatter = None,
+    ignore_warning = False,
 ) -> ennufmodel.Model:
+    if not ignore_warning:
+        raise NotImplementedError("SVRs are currently unsupported and still in development.")
     layer_names=["input","svr"]
     dtype=sklearn_model.dual_coef_.dtype
     ennuf_model = ennufmodel.Model(
