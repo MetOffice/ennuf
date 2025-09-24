@@ -6,17 +6,21 @@ from ennuf._internal.ml_model.base_layer import BaseLayer
 from ennuf._internal.ml_model.layers.input_layer import InputLayer
 
 
-class Pooling_1d(BaseLayer):
+class Pooling1d(BaseLayer):
     """ENNUF representation of a 1d pooling layer"""
+
+    def get_fortran_data_initialisation(self) -> str:
+        return ""
+
     def __init__(
-        self,
-        name: str,
-        inputs: BaseLayer,
-        parent_model: model.Model
-        pool_size : int,
-        type_of_pooling: str,
-        paddding: int,
-        stride: int
+            self,
+            name: str,
+            inputs: BaseLayer,
+            parent_model: model.Model,
+            pool_size: int,
+            type_of_pooling: str,
+            padding: int,
+            stride: int
     ):
         self.pool_size = pool_size
         self.type_of_pooling = type_of_pooling
@@ -24,18 +28,22 @@ class Pooling_1d(BaseLayer):
         self.stride = stride
         channels = inputs.shape[0]
         l_in = inputs.shape[1]
-        l_out =  1 + ( l_in + 2 * self.padding - self.pool_size) / self.stride
+        if (l_in + 2 * self.padding - self.pool_size) % self.stride != 0:
+            raise ValueError(f"Cannot integer divide by stride: {l_in=}, {self.padding=}, {self.pool_size=},\n"
+                             f"{self.stride=}, {(l_in + 2 * self.padding - self.pool_size)=} and {self.stride=}.\n"
+                             f" Modulus should be zero but is: {(l_in + 2 * self.padding - self.pool_size) % self.stride}")
+        l_out = int(1 + (l_in + 2 * self.padding - self.pool_size) / self.stride)
         super().__init__(name, (channels, l_out), inputs, parent_model)
-        
-     def get_fortran_layer_subroutine_call_stmt(self) -> str:
+
+    def get_fortran_layer_subroutine_call_stmt(self) -> str:
         subroutine_name = self.fortran_id()
         x_in = self.inputs.output_name
         y_out = self.output_name
-        channels = self.inputs.shape[0]
+        channels = self.shape[0]
         l_in = self.inputs.shape[1]
         l_out = self.shape[1]
         pool_size = self.pool_size
-        type_of_pooling = f"'{self.type_of_pooling}'"   
+        type_of_pooling = f"'{self.type_of_pooling}'"
         padding = self.padding
         stride = self.stride
         call_stmt = self.parent_model.formatter.format_line(
@@ -43,7 +51,7 @@ class Pooling_1d(BaseLayer):
         )
         return call_stmt
 
-        @staticmethod
+    @staticmethod
     def fortran_id() -> str:
         return "pooling_1d"
 
@@ -55,7 +63,7 @@ class Pooling_1d(BaseLayer):
         )
 
     def get_fortran_type_declaration(self, dtype: str) -> str:
-        channels = self.inputs.shape[0]
+        channels = self.shape[0]
         l_out = self.shape[1]
         output_typedecl = self.parent_model.formatter.format_line(
             f"REAL(KIND={dtype}) :: {self.output_name}({channels},{l_out})"

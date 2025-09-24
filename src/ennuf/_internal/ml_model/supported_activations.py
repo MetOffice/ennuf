@@ -7,6 +7,7 @@ from ennuf._internal.ml_model.activations.leaky_relu import LeakyRelu
 from ennuf._internal.ml_model.activations.relu import Relu
 from ennuf._internal.ml_model.activations.sigmoid import Sigmoid
 from ennuf._internal.ml_model.activations.tanh import Tanh
+from ennuf._internal.ml_model.activations.softmax import Softmax
 
 
 class SupportedActivations:
@@ -21,6 +22,7 @@ class SupportedActivations:
             "tanh": Tanh,
             "linear": Linear,
             "LeakyReLU": LeakyRelu,
+            "softmax": Softmax,
         }
 
     @classmethod
@@ -36,20 +38,20 @@ class SupportedActivations:
         return activationtype()
 
     @classmethod
-    def from_serialized_dict(cls, seralized_dict: Dict) -> BaseActivation | None:
+    def from_serialized_dict(cls, serialized_dict: Dict) -> BaseActivation | None:
         """
         Takes a dictionary representation of an activation function of the form that might be returned by Keras,
         and returns an ennuf activation class.
         """
-        id_ = seralized_dict["class_name"]
+        id_ = serialized_dict["class_name"]
         if id_ not in cls.ids():
             raise NotImplementedError(f"Unsupported activation identifier: {id_}")
-        activationtype = cls.ids()[id_]
-        if activationtype is None:
+        activation_type = cls.ids()[id_]
+        if activation_type is None:
             return None
-        if activationtype is LeakyRelu:
+        if activation_type is LeakyRelu:
             try:
-                alpha = seralized_dict["config"]["negative_slope"]
+                alpha = serialized_dict["config"]["negative_slope"]
             except KeyError:
                 alpha = serialized_dict["config"]["alpha"]
             return LeakyRelu(alpha=alpha)

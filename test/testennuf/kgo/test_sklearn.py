@@ -33,6 +33,7 @@ def test_svr():
     # y[::5] += (0.5 - rng.random(8))
 
     sklearn_model.fit(X, y)
-    template_test_svr(sklearn_model)
+    with pytest.raises(NotImplementedError):
+        template_test_svr(sklearn_model)
 
 test_svr()

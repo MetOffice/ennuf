@@ -13,26 +13,26 @@ class BaseLayer(ABC):
     def __init__(
         self,
         name: str,
-        shape: int | Tuple[int] | None,
+        shape: int | Tuple[int, ...] | None,
         inputs: List[BaseLayer] | BaseLayer | None,
         parent_model: model.Model,
     ):
         self.inputs = inputs
         if isinstance(shape, Tuple):
-            self.shape: Tuple[int] | None = shape
+            self.shape: Tuple[int, ...] | None = shape
         else:
             self.shape = (shape,)
         self.name = name
-        self._overriden_output_name = None
+        self._overridden_output_name = None
         self.parent_model = parent_model
 
     @property
     def output_name(self):
-        return f"y_{self.name}" if self._overriden_output_name is None else self._overriden_output_name
+        return f"y_{self.name}" if self._overridden_output_name is None else self._overridden_output_name
 
     @output_name.setter
     def output_name(self, value):
-        self._overriden_output_name = value
+        self._overridden_output_name = value
 
     @abstractmethod
     def __str__(self):

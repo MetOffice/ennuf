@@ -77,6 +77,13 @@ class BaseFormatter(ABC):
                     next_stmt = self.format_data_statement(varname=f"{varname}({i + 1}, :)", data=row)
                     data_stmts = f"{data_stmts}{next_stmt}\n"
                 return data_stmts
+            case 3:
+                data_stmts = "\n"
+                for i, row in enumerate(data):
+                    for j, col in enumerate(row):
+                        next_stmt = self.format_data_statement(varname=f"{varname}({i + 1}, {j + 1}, :)", data=col)
+                        data_stmts = f"{data_stmts}{next_stmt}\n"
+                return data_stmts
             case _:
                 raise NotImplementedError(
                     f"Could not format array {varname}: "

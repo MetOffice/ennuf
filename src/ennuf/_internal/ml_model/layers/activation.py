@@ -12,14 +12,20 @@ class Activation(BaseLayer):
     def __init__(
         self,
         name: str,
-        shape: int | Tuple[int],
+        shape: int | Tuple[int, ...],
         inputs: BaseLayer,
         parent_model: model.Model,
-        activation: BaseActivation
+        activation: BaseActivation,
     ):
         self.activation=activation
-        channels = inputs.shape[0]
-        shape_with_channels = (channels,) + (shape,) if isinstance(shape, int) else (channels, ) + shape
+        if isinstance(shape, tuple) and len(shape) == 2:
+            shape_with_channels = shape
+        elif isinstance(shape, tuple) and len(shape) == 1:
+            shape_with_channels = (1, shape[0])
+        elif isinstance(shape, int):
+            shape_with_channels = (1, shape)
+        else:
+            raise ValueError(f"Activation layer cannot have more than two dimensions, {shape=} requested")
         super().__init__(name, shape_with_channels, inputs, parent_model)
 
     def get_fortran_type_declaration(self, dtype: str) -> str:
@@ -38,7 +44,7 @@ class Activation(BaseLayer):
         x_in = self.inputs.output_name
         y_out = self.output_name
         channels = self.shape[0]
-        length = self.inputs.shape[1]
+        length = self.shape[1]
         activation_id = self.activation.fortran_id() 
         if hasattr(self.activation, "alpha"):
             alpha = self.activation.alpha

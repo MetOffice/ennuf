@@ -7,7 +7,7 @@ from ennuf._internal.ml_model.base_layer import BaseLayer
 class InputLayer(BaseLayer):
     """Ennuf representation of a set of inputs to a neural network."""
 
-    def __init__(self, shape: Tuple[int], has_channels: bool, name: str, parent_model):
+    def __init__(self, shape: Tuple[int, ...], has_channels: bool, name: str, parent_model):
         shape_with_channels = shape if has_channels else (1,) + shape
         super().__init__(
             name=name,
