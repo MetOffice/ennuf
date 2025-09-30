@@ -2,7 +2,7 @@
 
 ## What is it?
 
-**E**asy **N**eural **N**etworks for the **U**M in **F**ortran.
+**E**asy **N**eural **N**etworks for the **U**se in **F**ortran.
 
 Born out of the need for a solution to deal with the fact that we currently 
 have no good way of running machine learning models (which are typically designed and
@@ -22,7 +22,7 @@ codebase we'd normally touch.
 
 However, you can also just initialise the weights directly in a Fortran file!
 
-The above realisations led Cyril Morcrette to come up with ENNUF - something that takes
+The above realisations led Cyril Morcrette to come up with [ENNUF](https://zenodo.org/records/12581295) - something that takes
 a Python model and pastes all the weights and biases directly into a Fortran file.
 
 At first this was a more manually controlled process, with neural network structure
