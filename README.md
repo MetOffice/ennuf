@@ -6,7 +6,7 @@
 
 Born out of the need for a solution to deal with the fact that we currently 
 have no good way of running machine learning models (which are typically designed and
-trained in Python using TensorFlow or PyTorch) in the UM (which is of course written
+trained in Python using TensorFlow or PyTorch) in the UM or LFRic (which are of course written
 in Fortran). Calling Python code from the UM has been tried and massively slows it down.
 We'd like a way of bridging the gap that isn't a fully-fledged TensorFlow/PyTorch 
 library rewritten in Fortran, since we absolutely do not currently have the resources 
