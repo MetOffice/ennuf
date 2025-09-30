@@ -21,9 +21,9 @@ class Model:
     def __init__(
         self,
         name: str,
-        long_name: str,
         output_names: List[str],
-        dtype=np.float32,
+        description: str="",
+        dtype:np.dtype=np.float32,
         formatter=None,
     ):
         """
@@ -31,17 +31,20 @@ class Model:
         Parameters
         ----------
         name
-         a valid fortran identifier, e.g. "ennuf_bcf"
-        long_name
-         a more descriptive name, e.g. "Bulk Cloud Fraction"
+         a valid fortran identifier, e.g. "ennuf_nn"
         output_names
-         List of names of the network outputs, e.g. ["temperature_profile", "humidity_profile", "pressure_profile"]
+         List of names of the network output layers,
+         e.g. ["temperature_profile", "humidity_profile", "pressure_profile"]
+        description
+         a description of the model, which will appear as a comment in the generated file,
+          e.g. "Neural network for calculating bulk cloud fraction from thermodynamic variables"
         dtype
+            The type of the model weights, usually real numbers of a given precision.
         formatter
-         The fortran formatter for the model to use. Defaults to CONFIG.default_formatter() if None is provided.
+         The fortran formatter for the model to use. Defaults to ennuf.CONFIG.default_formatter() if None is provided.
         """
         self.name = name
-        self.long_name = long_name
+        self.description = description
         self.dtype = dtype
         self.output_names = output_names
         self._module_name = f"{self.name}_mod"
@@ -49,7 +52,7 @@ class Model:
         self.layers: List[BaseLayer] = []
         """
         The model's layers. Note this is a list rather than a set, so that when displayed to a user the layers
-        can appear easily in the same order they specified them; but this is *not* guarunteed to be the ordering of
+        can appear easily in the same order they specified them; but this is *not* guaranteed to be the ordering of
         the layers of a sequential model.
         """
 
@@ -87,7 +90,7 @@ class Model:
             f"{self._fortran_module_tail()}"
         )
 
-    def create_fortran_module(self, file: Path | str, overwrite: bool = False, include_neural_net_mod=True, include_svr_mod=True) -> None:
+    def create_fortran_module(self, file: Path | str, overwrite: bool = False, include_neural_net_mod=True, include_svr_mod=False) -> None:
         mode = "w" if overwrite else "x"
 
         if not isinstance(file, Path):
@@ -103,7 +106,7 @@ class Model:
     def _fortran_file_head(self) -> str:
         """Returns text that goes at the top of the fortran file"""
         required_header = self.formatter.required_file_header()
-        header_comment = self.formatter.format_line(f"! Easy Neural Networks in the Um in Fortran: {self.long_name}")
+        header_comment = self.formatter.format_line(f"! Easy Neural Networks in the Um in Fortran: {self.description}")
         return f"{required_header}" f"\n" f"{header_comment}"
 
     def _fortran_module_head(self) -> str:

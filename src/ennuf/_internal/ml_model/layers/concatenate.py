@@ -19,13 +19,13 @@ class Concatenate(BaseLayer):
         super().__init__(name, shape, inputs, parent_model)
         if len(self.shape) != 1:
             raise NotImplementedError(
-                f"Output shape expected to be {self.shape} but have not yet implemented"
+                f"Output shape of {self.shape} requested but have not yet implemented"
                 f" Concatenate layers for shapes that are not 1d."
             )
         if len(inputs) != 2:
             raise NotImplementedError(
                 "Not yet implemented Concatenate layers for concatenating more than two layers"
-                f"at once, but recieved {len(inputs)} inputs."
+                f"at once, but received {len(inputs)} inputs."
             )
 
     def __str__(self):

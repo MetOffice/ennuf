@@ -40,8 +40,8 @@ def from_sequential(
         raise ValueError("Unable to find dtype.")
     ennuf_model = ennufmodel.Model(
         name=name,
-        long_name=long_name,
         output_names=[layer_names[-1]],
+        description=long_name,
         dtype=dtype,
     )
     input_layer = InputLayer(name="input", has_channels=input_layers_have_channels, shape=input_shape,
