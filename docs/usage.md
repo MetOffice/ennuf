@@ -65,20 +65,4 @@ and `from ennuf.keras import from_functional` instead of `from_sequential`.
 It's nice to be able to automatically translate your model in a couple of lines of python,
 but you can also manually specify your network architecture and generate Fortran based on that.
 
-```python
-from ennuf.ml_model import (
-    Activation, Concatenate, Conv1d, Dense, Flatten, InputLayer,
-    Model, Pooling1d, Reshape, SupportedActivations
-)
-import numpy as np
-
-ennuf_model = Model(
-    name="my_first_ennuf_nn", 
-    output_names=["",], 
-    description="A model for demonstrating how to use the ENNUF manual API",
-    dtype=np.float32,
-)
-ennuf_model.layers=[
-    InputLayer((4,))
-]
-```
+*TODO: Instructions to follow*
