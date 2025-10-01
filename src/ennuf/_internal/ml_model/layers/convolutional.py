@@ -66,6 +66,8 @@ class Conv1d(BaseLayer):
             raise ValueError(
                 f"Cannot integer divide by stride: {(self.dilation * (self.kernel_size - 1) - 1)=} and {self.stride=}.\n Modulus should be zero but is: {(self.dilation * (self.kernel_size - 1) - 1) % self.stride}")
         l_out = int(1 + ((l_in + 2 * self.padding - self.dilation * (self.kernel_size - 1) - 1) / self.stride))
+        if l_out < 1:
+            raise ValueError(f"Output of convolutional layer predicted to have a dimension of length less than 1 ({l_out} in a shape of {(c_out, l_out)}).")
         super().__init__(name, (c_out, l_out), inputs, parent_model)
         self._weights_name = f"w_{self.name}"
         self._bias_name = f"b_{self.name}"

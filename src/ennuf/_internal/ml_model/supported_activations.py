@@ -30,12 +30,12 @@ class SupportedActivations:
         """Takes a string id and returns an ennuf activation class"""
         if id_ not in cls.ids():
             raise NotImplementedError(f"Unsupported activation identifier: {id_}")
-        activationtype = cls.ids()[id_]
-        if activationtype is LeakyRelu:
+        activation_type = cls.ids()[id_]
+        if activation_type is LeakyRelu:
             raise NotImplementedError("pretty sure you are never supposed to reach here")
-        if activationtype is None:
+        if activation_type is None:
             return None
-        return activationtype()
+        return activation_type()
 
     @classmethod
     def from_serialized_dict(cls, serialized_dict: Dict) -> BaseActivation | None:

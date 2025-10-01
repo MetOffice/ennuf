@@ -15,7 +15,7 @@ def from_sequential(
     output_name = keras_model.outputs[0].name
     model = ennufmodel.Model(
         name=name,
-        long_name=long_name,
+        description=long_name,
         output_names=[output_name],
         dtype=dtype,
     )

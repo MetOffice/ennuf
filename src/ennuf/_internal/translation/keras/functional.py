@@ -44,8 +44,8 @@ def from_functional(
     dtype = keras_model.variable_dtype
     model = ennufmodel.Model(
         name=name,
-        long_name=long_name,
         output_names=[""],
+        description=long_name,
         dtype=dtype,
     )
     layer_mapping = {}

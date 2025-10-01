@@ -24,8 +24,8 @@ def from_svr(
     dtype=sklearn_model.dual_coef_.dtype
     ennuf_model = ennufmodel.Model(
         name=name,
-        long_name=long_name,
         output_names=[layer_names[-1]],
+        description=long_name,
         dtype=dtype,
         formatter=formatter
     )

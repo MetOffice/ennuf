@@ -1,13 +1,13 @@
 #  (C) Crown Copyright, Met Office, 2023.
 """Module for project configuration."""
-from ennuf._internal.formatters import MetOfficeUMFormatter
+from ennuf._internal.formatters import MinimalistFormatter
 from ennuf._internal.utils.logger import create_logger
 
 
 class _EnnufConfig:
     """Defines the project configuration."""
 
-    default_formatter = MetOfficeUMFormatter()
+    default_formatter = MinimalistFormatter()
     logger = create_logger()
     compiler = "gfortran"
 

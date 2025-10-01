@@ -7,7 +7,14 @@ from ennuf._internal.ml_model.base_layer import BaseLayer
 class InputLayer(BaseLayer):
     """Ennuf representation of a set of inputs to a neural network."""
 
-    def __init__(self, shape: Tuple[int, ...], has_channels: bool, name: str, parent_model):
+    def __init__(self, shape: Tuple[int, ...], name: str, parent_model, has_channels: bool = False,):
+        """
+        :param shape: the shape of input data
+        :param name: a unique id for this layer, which must be a valid Fortran identifier
+        :param has_channels: True if the first dimension of the input shape should be treated as a number of channels
+            for e.g. convolutional layers after this one.
+        :param parent_model: the ennuf model this layer belongs to
+        """
         shape_with_channels = shape if has_channels else (1,) + shape
         super().__init__(
             name=name,

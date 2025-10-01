@@ -10,7 +10,7 @@ from testennuf import TMPDIR, RANDOM_SEED
 from testennuf.kgo.template import template_test_kgo
 
 def template_test_svr(sklearn_model):
-    from ennuf.sklearn import from_svr
+    from ennuf._internal.translation.sklearn.svr import from_svr
 
     model = from_svr(sklearn_model)
     dir_ = TMPDIR.joinpath("sklearn", f"{model.name}")
