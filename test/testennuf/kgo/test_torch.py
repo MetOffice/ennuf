@@ -2,7 +2,7 @@ import shutil
 
 import numpy as np
 import pytest
-from testennuf import TMPDIR
+from testennuf import TMPDIR, RANDOM_SEED
 from testennuf.example_models.pytorch_convolutional import PytorchConvolutional
 from testennuf.example_models.pytorch_simple_mlp import SimpleMLP, LessSimpleMLP
 
