@@ -1,3 +1,4 @@
+#  (C) Crown Copyright, Met Office, 2025.
 import numpy as np
 
 import ennuf._internal.ml_model.model as model

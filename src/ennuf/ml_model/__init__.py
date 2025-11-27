@@ -1,3 +1,4 @@
+#  (C) Crown Copyright, Met Office, 2025.
 from ennuf._internal.ml_model.layers.activation import Activation
 from ennuf._internal.ml_model.layers.concatenate import Concatenate
 from ennuf._internal.ml_model.layers.convolutional import Conv1d
