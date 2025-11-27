@@ -106,3 +106,59 @@ def test_complicated_cnn():
         nn.Linear(322, 4),
     )
     template_test_torch_sequential(torch_model, input_size=(3, 20))
+
+def test_manual():
+    from ennuf.ml_model import (
+        Activation, Concatenate, Conv1d, Dense, Flatten, InputLayer,
+        Model, Pooling1d, SupportedActivations, PaddingMode
+    )
+    rng = np.random.default_rng(RANDOM_SEED)
+    # fetch the weights for each of your model's layers. In this example we'll randomly generate some,
+    # but you'll want to get yours from your trained network.
+    conv_weights = rng.random((3,1))
+    conv_biases = rng.random((3,))
+    dense_weights = rng.random((4,4))
+    dense_biases = rng.random(4)
+
+    ennuf_model = Model(
+        name="my_first_ennuf_nn",
+        output_names=["", ],
+        description="A model for demonstrating how to use the ENNUF manual API",
+        dtype=np.float32,
+    )
+    ennuf_model.layers = [
+        input_1 := InputLayer((4,), name="input_1", parent_model=ennuf_model),
+        input_2 := InputLayer((3, 20,), name="input_2", parent_model=ennuf_model),
+        conv_1 := Conv1d(
+            name="conv_1",
+            inputs=input_2,
+            parent_model=ennuf_model,
+            weights=conv_weights,
+            biases=conv_biases,
+            padding_mode=PaddingMode.ZEROS,
+            padding=1,
+            stride=1,
+            dilation=1,
+        ),
+        pool_1 := Pooling1d(
+            name="pool_1",
+            inputs=conv_1,
+            parent_model=ennuf_model,
+            pool_size=2,
+            type_of_pooling="AVG",
+            padding=0,
+            stride=1,
+        ),
+        tanh := Activation(name="tanh", shape=(3,4), inputs=pool_1, parent_model=ennuf_model, activation=SupportedActivations.from_identifier("tanh")),
+        flattener := Flatten(name="flattener", inputs=tanh, parent_model=ennuf_model),
+        concat_1 := Concatenate(name="concat_1", shape=9, inputs=[input_1, flattener], axis=0, parent_model=ennuf_model),
+        dense_1 := Dense(
+            name="dense_1",
+            inputs=concat_1,
+            parent_model=ennuf_model,
+            shape=9,
+            weights=dense_weights,
+            biases=dense_biases,
+        ),
+        leaky_relu := Activation(name="leaky_relu", shape=9, inputs=dense_1, parent_model=ennuf_model, activation=SupportedActivations.ids()["LeakyReLU"](0.2)),
+    ]
