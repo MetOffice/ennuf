@@ -1,6 +1,6 @@
 # ENNUF
 
-**E**asy **N**eural **N**etworks for the **U**M in **F**ortran.
+**E**asy **N**eural **N**etworks for **U**se in **F**ortran.
 
 Welcome to the ENNUF documentation!
 
