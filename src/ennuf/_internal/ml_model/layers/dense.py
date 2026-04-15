@@ -18,7 +18,7 @@ class Dense(BaseLayer):
         parent_model: model.Model,
         shape: int | Tuple[int, ...],
         weights: np.ndarray,
-        biases: np.ndarray,
+        biases: np.ndarray | None,
         use_bias: bool = True,
     ):
         if isinstance(shape, tuple) and len(shape) == 2:
@@ -31,10 +31,10 @@ class Dense(BaseLayer):
             raise ValueError(f"Dense layer cannot have more than two dimensions, {shape=} requested")
         self.units = shape_with_channels[1]
         self.weights = weights
+        if use_bias and biases is None:
+            raise ValueError("biases may not be None while use_bias is True")
         self.biases = biases
         self.use_bias = use_bias
-        if not use_bias:
-            raise NotImplementedError("Not yet implemented dense layers without bias.")
         super().__init__(name, shape_with_channels, inputs, parent_model)
         self._weights_name = f"w_{self.name}"
         self._bias_name = f"b_{self.name}"
@@ -50,6 +50,8 @@ class Dense(BaseLayer):
         biases = self._bias_name
         call_stmt = self.parent_model.formatter.format_line(
             f"CALL {subroutine_name}({x_in}, {y_out}, {channels}, {l_in}, {l_out}, {weights}, {biases})"
+        ) if self.use_bias else self.parent_model.formatter.format_line(
+            f"CALL {subroutine_name}({x_in}, {y_out}, {channels}, {l_in}, {l_out}, {weights})"
         )
         return call_stmt
 
@@ -73,13 +75,17 @@ class Dense(BaseLayer):
         )
         bias_typedecl = self.parent_model.formatter.format_line(
             f"REAL(KIND={dtype}) :: {self._bias_name}({output_shape})"
-        )
+        ) if self.use_bias else ""
         output_typedecl = self.parent_model.formatter.format_line(
             f"REAL(KIND={dtype}) :: {self.output_name}({channels},{output_shape})"
         )
-        return f"{weights_typedecl}{bias_typedecl}{output_typedecl}\n"
+        typedecl = f"{weights_typedecl}{bias_typedecl}{output_typedecl}\n"
+        return typedecl
 
     def get_fortran_data_initialisation(self) -> str:
-        bias_init = self.parent_model.formatter.format_data_statement(varname=self._bias_name, data=self.biases)
         weights_inits = self.parent_model.formatter.format_data_statement(varname=self._weights_name, data=self.weights.T)
-        return f"{bias_init}\n{weights_inits}"
+        if self.use_bias:
+            bias_init = self.parent_model.formatter.format_data_statement(varname=self._bias_name, data=self.biases)
+            return f"{bias_init}\n{weights_inits}"
+        else:
+            return weights_inits

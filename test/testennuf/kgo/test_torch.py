@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 from testennuf import TMPDIR, RANDOM_SEED
 from testennuf.example_models.pytorch_convolutional import PytorchConvolutional
-from testennuf.example_models.pytorch_simple_mlp import SimpleMLP, LessSimpleMLP
+from testennuf.example_models.pytorch_simple_mlp import SimpleMLP, LessSimpleMLP, SimpleNet
 
 from testennuf.kgo.template import template_test_kgo
 import torch
@@ -107,6 +107,10 @@ def test_complicated_cnn():
         nn.Linear(322, 4),
     )
     template_test_torch_sequential(torch_model, input_size=(3, 20))
+
+def test_simplenet():
+    torch_model = SimpleNet()
+    template_test_torch_sequential(torch_model, input_size=(5,), input_has_channels=False)
 
 def test_manual():
     from ennuf.ml_model import (
