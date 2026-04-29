@@ -5,8 +5,8 @@ description = "Easy Neural Networks in Fortran, a package for translating ML mod
 authors = ["Helena Reid <helena.reid@metoffice.gov.uk>"]
 readme = "README.md"
 packages = [
-    { include = "ennuf", from = "src" },
-{ include = "testennuf", from = "test" }
+  { include = "ennuf", from = "src" },
+  { include = "testennuf", from = "test" },
 ]
 
 [[tool.poetry.source]]
@@ -14,12 +14,17 @@ name = "artifactory-pypi"
 url = "https://metoffice.jfrog.io/artifactory/api/pypi/pypi/simple"
 priority = "primary"
 
+[[tool.poetry.source]]
+20 │ name = "pytorch-cpu"
+21 │ priority = "explicit"
+22 │ url = "https://download.pytorch.org/whl/cpu"
+
 [tool.poetry.dependencies]
+torch = { version = "==2.11.0", source = "pytorch-cpu", markers = "extra=
+     │ ='cpu' and extra!='cuda'" }
 python = ">=3.10, <=3.13"
 tensorflow-cpu = "~2.18"
 numpy = "^1.23"
-torch = "^2.6.0"
-
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.2"
 whl2conda = "^23.8.8"
@@ -42,13 +47,19 @@ line-length = 120
 max-line-length = 120
 
 [tool.pylint.variables]
-ignored-argument-names="arg|args|kwargs|_.*|^ignored_|^unused_"
+ignored-argument-names = "arg|args|kwargs|_.*|^ignored_|^unused_"
 
 [tool.pylint.messages_control]
 disable = [
-    # defalt values from pylint
-    "raw-checker-failed", "bad-inline-option", "locally-disabled", "file-ignored", "suppressed-message",
-    "useless-suppression", "deprecated-pragma", "use-symbolic-message-instead",
-    # project specific values
-    "missing-module-docstring"
+  # defalt values from pylint
+  "raw-checker-failed",
+  "bad-inline-option",
+  "locally-disabled",
+  "file-ignored",
+  "suppressed-message",
+  "useless-suppression",
+  "deprecated-pragma",
+  "use-symbolic-message-instead",
+  # project specific values
+  "missing-module-docstring",
 ]
