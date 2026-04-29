@@ -15,13 +15,12 @@ url = "https://metoffice.jfrog.io/artifactory/api/pypi/pypi/simple"
 priority = "primary"
 
 [[tool.poetry.source]]
-20 │ name = "pytorch-cpu"
-21 │ priority = "explicit"
-22 │ url = "https://download.pytorch.org/whl/cpu"
+name = "pytorch-cpu"
+priority = "explicit"
+url = "https://download.pytorch.org/whl/cpu"
 
 [tool.poetry.dependencies]
-torch = { version = "==2.11.0", source = "pytorch-cpu", markers = "extra=
-     │ ='cpu' and extra!='cuda'" }
+torch = { version = "==2.11.0", source = "pytorch-cpu", markers = "extra=='cpu' and extra!='cuda'" }
 python = ">=3.10, <=3.13"
 tensorflow-cpu = "~2.18"
 numpy = "^1.23"
