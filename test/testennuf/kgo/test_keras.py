@@ -140,6 +140,9 @@ def test_conv_dropout(set_seed):
     with pytest.raises(NotImplementedError):
         template_test_keras_functional(keras_model, "last")
 
+def test_simple_concat(set_seed):
+    keras_model = KerasConvolutional.build_simple_concat()
+    template_test_keras_functional(keras_model, "last")
 
 def test_channels_first(set_seed):
     keras_model = tf.keras.Sequential([
