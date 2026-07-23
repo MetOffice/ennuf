@@ -35,7 +35,7 @@ class Concatenate(BaseLayer):
         )
 
     def get_fortran_type_declaration(self, dtype: str) -> str:
-        channels = self.inputs[0].shape[0]
+        channels = self.inputs[0].shape[0] if len(self.inputs[0].shape) > 1 else 1
         output_shape = self.shape[0]
         output_typedecl = self.parent_model.formatter.format_line(
             f"REAL(KIND={dtype}) :: {self.output_name}({channels},{output_shape})"
@@ -50,8 +50,8 @@ class Concatenate(BaseLayer):
         x_in1 = self.inputs[0].output_name
         x_in2 = self.inputs[1].output_name
         y_out = self.output_name
-        channels = self.inputs[0].shape[0]
-        length = self.inputs[0].shape[1]
+        channels = self.inputs[0].shape[0] if len(self.inputs[0].shape) > 1 else 1
+        length = max(self.inputs[0].shape[1],self.inputs[1].shape[1]) if len(self.inputs[0].shape) > 1 else max(self.inputs[0].shape[0],self.inputs[1].shape[0])
         call_stmt = self.parent_model.formatter.format_line(f"CALL {subroutine_name}({x_in1}, {x_in2}, {y_out}, {channels}, {length})")
         return call_stmt
 

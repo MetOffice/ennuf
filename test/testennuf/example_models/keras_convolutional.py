@@ -82,3 +82,24 @@ class KerasConvolutional:
         out1 = tf.keras.layers.Dense(4, activation="softmax", name="class_output")(x)
         out2 = tf.keras.layers.Dense(1, activation="sigmoid", name="score_output")(x)
         return tf.keras.Model(inputs=inputs, outputs={"class_output": out1, "score_output": out2})
+
+    @staticmethod
+    def build_simple_concat():
+        LEAKY_ALPHA = 0.1
+
+        profile_input = tf.keras.layers.Input(shape=(8, 3), name="profile_input")
+        topo_input    = tf.keras.layers.Input(shape=(4,),   name="topo_input")
+
+        x = tf.keras.layers.Conv1D(filters=4, kernel_size=3, padding="same")(profile_input)
+        x = tf.keras.layers.ReLU(negative_slope=LEAKY_ALPHA)(x)
+
+        x = tf.keras.layers.Flatten()(x)
+        x = tf.keras.layers.Concatenate()([x, topo_input])
+
+        x = tf.keras.layers.Dense(6)(x)
+        x = tf.keras.layers.ReLU(negative_slope=LEAKY_ALPHA)(x)
+
+        output = tf.keras.layers.Dense(8, name="residual_profile")(x)
+
+        dummy_model = tf.keras.Model(inputs=[profile_input, topo_input], outputs=output)
+        return dummy_model
