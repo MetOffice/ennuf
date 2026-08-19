@@ -419,7 +419,8 @@ CONTAINS
     y_out, &
     ! dimensions of input arrays
     channels, &
-    length)
+    length1,&
+    length2)
 
     IMPLICIT NONE
 
@@ -428,23 +429,24 @@ CONTAINS
     ! Dimensions of input arrays
     INTEGER, INTENT(IN) :: &
       channels &
-    , length
+    , length1, &
+    length2
 
     ! Input arrays of data
     REAL(kind=precision), INTENT(IN) :: &
-      x1_in(channels,length) &
-    , x2_in(channels,length)
+      x1_in(channels,length1) &
+    , x2_in(channels,length2)
 
     ! Output array of data
     REAL(kind=precision), INTENT(OUT) :: &
-      y_out(channels, INT(2*length))
+      y_out(channels, INT(length1+length2))
 
     ! Auxiliary variable
     INTEGER :: c
 
     DO c=1, channels
-       y_out(c,:length) = x1_in(c,:)
-       y_out(c,length+1:) = x2_in(c,:)
+       y_out(c,:length1) = x1_in(c,:)
+       y_out(c,length1+1:) = x2_in(c,:)
     END DO
 
     END SUBROUTINE concatenate_1d
