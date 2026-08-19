@@ -88,7 +88,7 @@ class KerasConvolutional:
         LEAKY_ALPHA = 0.1
 
         profile_input = tf.keras.layers.Input(shape=(8, 3), name="profile_input")
-        topo_input    = tf.keras.layers.Input(shape=(4,),   name="topo_input")
+        topo_input = tf.keras.layers.Input(shape=(5,), name="topo_input")
 
         x = tf.keras.layers.Conv1D(filters=4, kernel_size=3, padding="same")(profile_input)
         x = tf.keras.layers.ReLU(negative_slope=LEAKY_ALPHA)(x)
@@ -103,3 +103,4 @@ class KerasConvolutional:
 
         dummy_model = tf.keras.Model(inputs=[profile_input, topo_input], outputs=output)
         return dummy_model
+
