@@ -64,7 +64,9 @@ class PytorchConvolutional:
             nn.ReLU(),
             nn.MaxPool1d(2),  # 100 -> 49
             nn.Dropout(0.25),
-            nn.Flatten(),
+            # The KGO exercises Conv1d without an outer batch dimension, so
+            # channels and length are flattened together before Linear.
+            nn.Flatten(0),
             nn.Linear(32 * 49, 64),
             nn.ReLU(),
             nn.Dropout(0.5),
