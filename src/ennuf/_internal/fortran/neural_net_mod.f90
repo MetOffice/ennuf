@@ -46,28 +46,18 @@ CONTAINS
     REAL(kind = precision), INTENT(IN), &
             OPTIONAL :: biases(length_out)
 
-    ! Auxiliary variables
-    INTEGER :: c,l_out,l_in
+    ! Auxiliary variable
+    INTEGER :: c
+
+    ! x_in is (channels,length_in) and weights is stored as
+    ! (length_out,length_in), so the transposed second operand gives the whole
+    ! (channels,length_out) result in one intrinsic MATMUL call.
+    y_out = MATMUL(x_in, TRANSPOSE(weights))
 
     IF (PRESENT(biases)) THEN
-    DO c=1,channels
-        DO l_out=1, length_out
-            y_out(c,l_out) = 0.0
-            DO l_in=1, length_in
-                y_out(c,l_out) = y_out(c, l_out) + (x_in(c,l_in) * weights(l_out, l_in))
-            END DO
-            y_out(c,l_out) = y_out(c,l_out) + biases(l_out)
-        END DO
-    END DO
-    ELSE
-    DO c=1,channels
-        DO l_out=1, length_out
-            y_out(c,l_out) = 0.0
-            DO l_in=1, length_in
-                y_out(c,l_out) = y_out(c, l_out) + (x_in(c,l_in) * weights(l_out, l_in))
-            END DO
-        END DO
-    END DO
+      DO c=1,channels
+        y_out(c,:) = y_out(c,:) + biases
+      END DO
     END IF
     END SUBROUTINE dense
 
