@@ -17,12 +17,13 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 def template_test_torch_sequential(torch_model, input_size: tuple[int, ...], input_has_channels=True):
     from ennuf.pytorch import from_sequential
 
+    # Translation reflects inference behaviour, so switch to eval mode first.
+    torch_model.eval()
     model = from_sequential(torch_model, input_size, input_layers_have_channels=input_has_channels, dtype=np.float32)
     dir_ = TMPDIR.joinpath("torch", f"{model.name}")
     if dir_.exists():
         shutil.rmtree(dir_)
     dir_.mkdir(parents=True)
-    torch_model.eval()
     template_test_kgo(model, dir_, torch_model, "pytorch")
     shutil.rmtree(dir_)
 
@@ -65,8 +66,9 @@ def test_deep_conv():
 
 def test_dropout_conv():
     torch_model = PytorchConvolutional.build_conv_with_dropout()
-    with pytest.raises(NotImplementedError):
-        template_test_torch_sequential(torch_model, (1, 32))
+    # Linear(32 * 49, 64) fixes the input length at 100:
+    # Conv1d(kernel=3) -> 98, MaxPool1d(2) -> 49.
+    template_test_torch_sequential(torch_model, (1, 100))
 
 
 @pytest.mark.parametrize(

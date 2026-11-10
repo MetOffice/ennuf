@@ -28,6 +28,11 @@ def from_sequential(
         input_layers_have_channels: bool = False,
         dtype: np.dtype | None = None,
 ) -> ennufmodel.Model:
+    if pytorch_model.training and any(isinstance(layer, nn.Dropout) for layer in pytorch_model.modules()):
+        raise ValueError(
+            "Models containing Dropout must be in eval mode before translation; "
+            "training-time Dropout is stochastic and cannot be represented in Fortran."
+        )
     for layer in pytorch_model.children():
         if hasattr(layer, "weight"):
             dtype = layer.weight.detach().numpy().dtype
@@ -50,10 +55,12 @@ def from_sequential(
     processed_layers = []
     original_layers = list(pytorch_model.children())
     for i, layer in enumerate(original_layers):
-        layers_added = 1  # overwrite this later if not true
+        previous_count = len(processed_layers)
         layer_name = str(layer).split("(")[0] + str(i)
         _process_layer(ennuf_model, layer, layer_name, processed_layers, i)
-        [ennuf_model.layers.append(processed_layer) for processed_layer in processed_layers[-layers_added:]]
+        layers_added = len(processed_layers) - previous_count
+        if layers_added:
+            ennuf_model.layers.extend(processed_layers[-layers_added:])
     ennuf_model.output_names = [ennuf_model.layers[-1].output_name.strip("y_")]
     return ennuf_model
 
@@ -100,6 +107,10 @@ def _process_layer(ennuf_model, layer, layer_name, processed_layers, i):
             activation=activation,
         )
         processed_layers.append(ennuf_activation_layer)
+    elif isinstance(layer, nn.Dropout):
+        # In eval mode Dropout is the identity, so it emits no Fortran layer.
+        # from_sequential rejects models that are still in training mode.
+        return
     elif isinstance(layer, nn.Flatten):
         ennuf_layer = Flatten(
             name=layer_name,
